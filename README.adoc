@@ -1,0 +1,20 @@
+= Walkthrough
+
+* Clone GitHub repository.
+* Provision FSx for ONTAP file system using CloudFormation.
+* Install and configure the Trident CSI driver for ROSA cluster.
+* Deploy sample MySQL stateful application on ROSA cluster.
+* Scale MySQL application pods across multi-Availability Zones.
+* Backup and restore volumes in the FSx for ONTAP file system.
+
+== Clone GitHub repository
+You will need Git to clone the github repository- https://github.com/aws-samples/rosa-fsx-netapp-ontap[https://github.com/aws-samples/rosa-fsx-netapp-ontap]. If you do not have git, install git with the following command:
+
+----
+sudo yum install git -y
+----
+Clone the git repository:
+
+----
+git clone https://github.com/aws-samples/rosa-fsx-netapp-ontap.git
+----
