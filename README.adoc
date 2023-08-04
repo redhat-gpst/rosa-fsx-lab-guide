@@ -1,7 +1,7 @@
 = Walkthrough
 
 * <<Clone-GitHub-repository,Clone GitHub repository>>.
-* Provision FSx for ONTAP file system using CloudFormation.
+* <<Provision-FSx-for-ONTAP], Provision FSx for ONTAP file system using CloudFormation>>.
 * Install and configure the Trident CSI driver for ROSA cluster.
 * Deploy sample MySQL stateful application on ROSA cluster.
 * Scale MySQL application pods across multi-Availability Zones.
@@ -19,4 +19,14 @@ Clone the git repository:
 ----
 git clone https://github.com/aws-samples/rosa-fsx-netapp-ontap.git
 ----
+
+[[Provision-FSx-for-ONTAP]]
+== Provision FSx for ONTAP
+We will create a multi-AZ FSx for ONTAP file system in the same VPC as the ROSA cluster.
+
+Take note of the VPC ID, 2 Subnet IDs corresponding to the subnets you want your file system to be in, as well as all route table IDs associated with the ROSA VPC subnets, and enter those values in the following command.
+
+The FSxAllowedCIDR is the allowed CIDR range set up for the FSx for ONTAP security groups ingress rules to control the access. You could use 0.0.0.0/0 or any appropriate CIDR to allow all traffic to access the specific ports of FSx for ONTAP. Run the command in a terminal to create FSx for ONTAP file system.
+
+NOTE: If you want to provision file system with different Storage Capacity and throughput, you can override the default values by setting StorageCapacity and ThroughputCapacity parameters in the CFN template.
 
