@@ -208,7 +208,7 @@ Run the following command to verify the Trident driver installation.
 
 [source,shell]
 ----
-helm status trident -n trident | grep "NAME:" -A 3
+helm status trident -n trident | grep "NAME:" -A 5
 ----
 [listing]
 ----
@@ -218,14 +218,11 @@ NAMESPACE: trident
 STATUS: deployed
 REVISION: 1
 TEST SUITE: None
-NOTES: ...truncated...
 ----
 
 === Create secret to store the SVM username and password in ROSA cluster
 
-Create a new file with the SVM username and admin password, and save it as `svm_secret.yml`. 
-
-A sample `svm_secret.yml` file is included in the fsx folder.
+Use the the `svm_secret.yml` file in the `fsx` directory
 
 
 [source,yaml]
@@ -244,6 +241,9 @@ stringData:
 // image:images/svm_secrets_manager.png[SVM Secrets Manager]
 
 Add the secret to the ROSA cluster with the following command:
+
+[source,bash]
+cd ~/rosa-fsx/fsx
 
 [source, bash]
 ----
@@ -267,17 +267,10 @@ backend-fsx-ontap-nas-secret         Opaque                                2    
 
 The Trident backend configuration tells Trident how to communicate with the storage system (in this case, FSx for ONTAP). We’ll use the `ontap-nas` driver to provision storage volumes.
 
-To get started, make sure you are in the `fsx` directory. 
-
-[source,bash]
-----
-cd ~/rosa-fsx/fsx
-----
-
 We are going to edit `backend-ontap-nas.yml` so it has the IP from the ManagementLIF and DataLIF IP addresses.
 
 
-NOTE: `ManagementLIF` and `DataLIF` IP Addresses can be found via the Amazon FSx Console under “Storage virtual machines” as shown in the following screenshot:
+NOTE: `ManagementLIF` and `DataLIF` IP Addresses can be found via the Amazon FSx Console under `Storage virtual machines` -> `Endpoints` as shown in the following screenshot:
 
 image::images/smv1.png[]
 
@@ -353,6 +346,7 @@ In this section, we will deploy the highly available MySQL application onto the 
 Before we begin with MySQL application deployment, we will store the application’s sensitive information like username and password in Secrets. We will be creating simple secrets.
 
 cd into the `~/rosa-fsx/fsx/mysql` directory 
+
 [source,shell]
 ----
 cd ~/rosa-fsx/fsx/mysql
@@ -361,7 +355,7 @@ cd ~/rosa-fsx/fsx/mysql
 Create the mysql namespace
 [source,bash]
 ----
-oc create namespace mysql
+oc create ns mysql
 ----
 
 Create the mysql secret
@@ -392,7 +386,7 @@ NOTE: Ignore any warnings about PodSecurity
 oc apply -f mysql-statefulset.yml
 ----
 
-Verify the application deployment.
+Verify the application deployment.  It will take a minute for the container to start.
 
 [source,shell]
 ----
@@ -401,11 +395,13 @@ oc get pods -n mysql
 
 [listing]
 ----
-NAME                                         READY   STATUS    RESTARTS   AGE
-mysql-client                                 1/1     Running   0          57s
+NAME          READY   STATUS    RESTARTS   AGE
+mysql-set-0   1/1     Running   0          40s
+mysql-set-1   1/1     Running   0          22s
+mysql-set-2   1/1     Running   0          8s
 ----
 
-Verify the PVCs are created by the MySQL application.
+Verify the PVCs are created by the MySQL application. 
 
 [source,shell]
 ----
@@ -477,15 +473,21 @@ Within the mysql-client pod, connect to the MySQL server.
 mysql -u root -p -h mysql-set-0.mysql.mysql.svc.cluster.local
 ----
 
-Enter the password that is stored in the mysql-secrets.yml. Once connected, Create a database on the MySQL database.
+Enter the password that is stored in mysql-secrets.yml. Once connected, Create a database on the MySQL database.
 
-[source,listing]
+From the `MySQL [(none)]>` prompt enter the following:
+
+[source]
 ----
-MySQL [(none)]> CREATE DATABASE erp;
-MySQL [(none)]> CREATE TABLE erp.Persons ( ID int, FirstName varchar(255),Lastname varchar(255)); 
-MySQL [(none)]> INSERT INTO erp.Persons (ID, FirstName, LastName) values (1234 , "John" , "Doe");
-MySQL [(none)]> commit;
-MySQL [(none)]> select * from erp.Persons;
+CREATE DATABASE erp;
+CREATE TABLE erp.Persons ( ID int, FirstName varchar(255),Lastname varchar(255)); 
+INSERT INTO erp.Persons (ID, FirstName, LastName) values (1234 , "John" , "Doe");
+commit;
+select * from erp.Persons;
+----
+
+[listing]
+----
 +------+-----------+----------+
 | ID | FirstName | Lastname |
 +------+-----------+----------+
