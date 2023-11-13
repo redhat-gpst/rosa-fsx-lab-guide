@@ -13,7 +13,7 @@ This lab guide assumes you are using the RHDP environment.
 Once you have the lab environment ready,  SSH into the bastion and follow the steps below.
 
 Steps: 
-
+  . <<logging-in, Logging in>>
   . <<provision-fsx-for-ontap, Provision FSx for ONTAP>>
   . <<install-and-configure-the-trident-csi-driver-for-rosa, Install and Configure the Trident CSI driver for ROSA>>
   . <<deploy-sample-mysql-stateful-application,Deploy a Sample MySQL Stateful Applicaiton>>
@@ -24,7 +24,7 @@ Steps:
 [[logging-in]]
 == Logging in  
 
-The bastion provided with he RHDP workshop has the `aws` and `rosa` command line tools already installed and logged in.  The `oc` command is installed, but not logged in.
+The bastion provided with the RHDP workshop has the `aws` and `rosa` command line tools already installed and logged in.  The `oc` command is installed, but not logged in.
 
 To login `oc`:
 
