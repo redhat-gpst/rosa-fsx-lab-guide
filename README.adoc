@@ -164,10 +164,6 @@ image::images/stack_volume_detailed.png[]
 == Install and configure the Trident CSI driver for ROSA 
 
 
-
-----
-
-
 We will be installing the Trident CSI driver in the Openshift “trident” namespace. 
 
 [source,shell]
