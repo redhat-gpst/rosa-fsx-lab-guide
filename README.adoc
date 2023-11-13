@@ -164,7 +164,7 @@ image::images/stack_volume_detailed.png[]
 == Install and configure the Trident CSI driver for ROSA 
 
 
-We will be installing the Trident CSI driver in the Openshift “trident” namespace. 
+We will be installing the Trident CSI driver in the Openshift `trident` namespace. 
 
 [source,shell]
 ----
@@ -186,7 +186,6 @@ Next, download the Trident CSI driver from github:
 
 [source,shell]
 ----
-cd ~/rosa-fsx/fsx/
 curl -L -o trident-installer.tar.gz \ 
   https://github.com/NetApp/trident/releases/download/v22.10.0/trident-installer-22.10.0.tar.gz
 ----
@@ -202,8 +201,7 @@ Use the following helm command to install the Trident CSI driver in the “tride
 
 [source,shell]
 ----
-cd ~/rosa-fsx/fsx/trident-installer/helm 
-helm install trident -n trident trident-operator-22.10.0.tgz
+cd ~/rosa-fsx/fsx/trident-installer/helm & helm install trident -n trident trident-operator-22.10.0.tgz
 ----
 
 Run the following command to verify the Trident driver installation.
