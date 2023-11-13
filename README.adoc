@@ -201,14 +201,14 @@ Use the following helm command to install the Trident CSI driver in the “tride
 
 [source,shell]
 ----
-cd ~/rosa-fsx/fsx/trident-installer/helm & helm install trident -n trident trident-operator-22.10.0.tgz
+cd ~/rosa-fsx/fsx/trident-installer/helm && helm install trident -n trident trident-operator-22.10.0.tgz
 ----
 
 Run the following command to verify the Trident driver installation.
 
 [source,shell]
 ----
-helm status trident -n trident
+helm status trident -n trident | grep "NAME:" -A 3
 ----
 [listing]
 ----
@@ -243,12 +243,14 @@ stringData:
 
 // image:images/svm_secrets_manager.png[SVM Secrets Manager]
 
-Add the secrets to the ROSA cluster with the following command:
+Add the secret to the ROSA cluster with the following command:
 
 [source, bash]
+----
 oc apply -f svm_secret.yml
+----
 
-To verify the secrets have been added to the ROSA cluster, run the following command.
+To verify the secret has been added to the ROSA cluster, run the following command.
 
 [source,bash]
 ----
@@ -263,7 +265,7 @@ backend-fsx-ontap-nas-secret         Opaque                                2    
 
 === Install and Configure Trident CSI backend to FSx for ONTAP
 
-The Trident backend configuration tells Trident how to communicate with the storage system (in this case, FSx for ONTAP). We’ll use the ontap-nas driver to provision storage volumes.
+The Trident backend configuration tells Trident how to communicate with the storage system (in this case, FSx for ONTAP). We’ll use the `ontap-nas` driver to provision storage volumes.
 
 To get started, make sure you are in the `fsx` directory. 
 
