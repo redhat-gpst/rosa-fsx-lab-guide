@@ -15,11 +15,55 @@ Once you have the lab environment ready,  SSH into the bastion and follow the st
 Steps: 
 
   . <<provision-fsx-for-ontap, Provision FSx for ONTAP>>
-  . <<install-web-terminal, Install OpenShift Web Terminal>>
   . <<install-and-configure-the-trident-csi-driver-for-rosa, Install and Configure the Trident CSI driver for ROSA>>
   . <<deploy-sample-mysql-stateful-application,Deploy a Sample MySQL Stateful Applicaiton>>
   . <<scale-mysql-application-pods,Scale MySQL Application Pods>>
   . <<backup-and-restore-with-snapshots,Backup and Restore with Snapshots>>
+
+
+[[logging-in]]
+== Logging in  
+
+The bastion provided with he RHDP workshop has the `aws` and `rosa` command line tools already installed and logged in.  The `oc` command is installed, but not logged in.
+
+To login `oc`:
+
+
+First, visit the OCP Web UI for the API URL.  Then use the API URL to login.
+
+Example:
+
+[source, bash]
+----
+[rosa@bastion]$ oc login https://api.rosa-6slmk.qkm6.p1.openshiftapps.com:6443
+You must obtain an API token by visiting https://oauth-openshift.apps.rosa-6slmk.qkm6.p1.openshiftapps.com/oauth/token/request
+
+[rosa@bastion]$ oc login --token=sha256~Bt3c-m2dTmmHqGlo-xxxxxxxxxxxxxxxxxxxxxxxx --server=https://api.rosa-6slmk.qkm6.p1.openshiftapps.com:6443
+
+Logged into "https://api.rosa-6slmk.qkm6.p1.openshiftapps.com:6443" as "cluster-admin" using the token provided.
+
+You have access to 100 projects, the list has been suppressed. You can list all projects with 'oc projects'
+----
+
+TIP:  You can also install the `'web-terminal` OpenShift operator and it will have the `oc` command installed and logged for you. Dont forget to clone the repo!
+
+// [[install-web-terminal]]
+// == Install Web Terminal
+// For the rest of lab we will use the `Web Terminal` OpenShift operator.  This has access to the FSx SVM and the `oc` command already configured.
+
+// Log into the OpenShift Web Console and install the `Web Terminal` from the Operator Hub.
+
+// screenshot of web-terminal
+
+// Open the web terminal from the shortcut on the upper right corner of the Console screen.  You may have to refresh your browswer for the icon to show.
+
+// Clone the git repository into the web-terminal and cd into the ros-fsx/fsx directory
+
+// [source,bash]
+// ----
+// git clone https://github.com/redhat-gpst/rosa-fsx.git
+// cd ~/rosa-fsx/fsx
+
 
 [[provision-fsx]]
 == Provision FSx for ONTAP 
@@ -33,7 +77,7 @@ Clone the git repository:
 
 [source,bash]
 ----
-git clone https://github.com/redhat-gpst/rosa-fsx.git
+git clone https://github.com/redhat-gpst/rosa-fsx.git 
 ----
 
 cd into the rosa-fsx/fsx directory
@@ -44,6 +88,8 @@ cd ~/rosa-fsx/fsx
 ----
 
 We will create a single-AZ FSx for ONTAP file system in the same VPC as the ROSA cluster.
+
+Let's take a look at the VPC sunets.
 
 From the bastion, run the following command.  
 
@@ -68,7 +114,7 @@ Output from commands will be showin in a box like below.
 +----------------+----------------------------+-------------------------+
 ----
 
-Run the following command to assign the SubnetId to SUBNETID
+Run the following command to assign the SubnetId to the SUBNETID variable.
 
 [source,bash]
 ----
@@ -76,7 +122,7 @@ export SUBNETID=$(aws ec2 describe-subnets --query 'Subnets[?CidrBlock==`10.0.0.
    --output json | jq -r '.[0]')
 ----
 
-Run the following command to assign the VpcId to VPCID
+Run the following command to assign the VpcId to the VPCID variable.
 
 [source,bash]
 ----
@@ -106,47 +152,19 @@ NOTE: This can take 20 - 30 minutes. You can monitor the progress of the stack c
 
 Verify your file system and storage virtual machine (SVM) has been created using the Amazon FSx console. 
 
+Tip:  You can use the `web-terminal` operator to SSH into the SVM at the management IP.
+
 image::images/stack_volume_detailed.png[]
 
-[[install-web-terminal]]
-== Install Web Terminal
-For the rest of lab we will use the `Web Terminal` OpenShift operator.  This has access to the FSx SVM and the `oc` command already configured.
 
-Log into the OpenShift Web Console and install the `Web Terminal` from the Operator Hub.
-
-// screenshot of web-terminal
-
-Open the web terminal from the shortcut on the upper right corner of the Console screen.  You may have to refresh your browswer for the icon to show.
 
 
 [[config-trident]]
 
 == Install and configure the Trident CSI driver for ROSA 
 
-// In order to use the `oc` command, you may have to first login.  
 
-// Visit the OCP Web UI for the API URL.  Then use the API URL to login.
 
-// Example:
-
-// [source, bash]
-// ----
-// [rosa@bastion]$ oc login https://api.rosa-6slmk.qkm6.p1.openshiftapps.com:6443
-// You must obtain an API token by visiting https://oauth-openshift.apps.rosa-6slmk.qkm6.p1.openshiftapps.com/oauth/token/request
-
-// [rosa@bastion]$ oc login --token=sha256~Bt3c-m2dTmmHqGlo-xxxxxxxxxxxxxxxxxxxxxxxx --server=https://api.rosa-6slmk.qkm6.p1.openshiftapps.com:6443
-
-// Logged into "https://api.rosa-6slmk.qkm6.p1.openshiftapps.com:6443" as "cluster-admin" using the token provided.
-
-// You have access to 100 projects, the list has been suppressed. You can list all projects with 'oc projects'
-// ----
-
-Clone the git repository into the web-terminal and cd into the ros-fsx/fsx directory
-
-[source,bash]
-----
-git clone https://github.com/redhat-gpst/rosa-fsx.git
-cd ~/rosa-fsx/fsx
 ----
 
 
