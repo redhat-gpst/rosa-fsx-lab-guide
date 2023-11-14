@@ -73,8 +73,6 @@ TIP:  You can also install the `'web-terminal` OpenShift operator and it will ha
 [[clone-github-repository]]
 === Clone GitHub repository 
 
-NOTE: This portion of the lab can be done from the FSx ROSA bastion as it already has the aws cli command installed and logged in
-
 Clone the git repository:
 
 [source,bash]
@@ -88,6 +86,8 @@ cd into the rosa-fsx/fsx directory
 ----
 cd ~/rosa-fsx/fsx
 ----
+
+
 
 We will create a single-AZ FSx for ONTAP file system in the same VPC as the ROSA cluster.
 
