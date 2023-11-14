@@ -152,6 +152,8 @@ aws cloudformation create-stack \
 ----
 NOTE: This can take 20 - 30 minutes. You can monitor the progress of the stack creation from AWS Console -> CloudFormation -> Stacks -> ROSA-FSXONTAP -> Events
 
+// aws cloudformation describe-stacks --stack-name ROSA-FSXONTAP
+
 Verify your file system and storage virtual machine (SVM) has been created using the Amazon FSx console. 
 
 Tip:  You can use the `web-terminal` operator to SSH into the SVM at the management IP.
@@ -269,15 +271,43 @@ backend-fsx-ontap-nas-secret         Opaque                                2    
 
 The Trident backend configuration tells Trident how to communicate with the storage system (in this case, FSx for ONTAP). We’ll use the `ontap-nas` driver to provision storage volumes.
 
-We are going to edit `backend-ontap-nas.yml` so it has the IP from the ManagementLIF and DataLIF IP addresses.
+We are going to edit `backend-ontap-nas.yml` so it has the IP from the ManagementLIF and DataLIF IP addresses of the FSx Server Virtual Mancine.
 
 
-NOTE: `ManagementLIF` and `DataLIF` IP Addresses can be found via the Amazon FSx Console under `Storage virtual machines` -> `Endpoints` as shown in the following screenshot:
+// NOTE: `ManagementLIF` and `DataLIF` IP Addresses can be found via the Amazon FSx Console under `Storage virtual machines` -> `Endpoints` as shown in the following screenshot:
 
-image::images/smv1.png[]
+// image::images/smv1.png[]
 
-Example file after editing:
-[source,yaml]
+Use this command to view the details for the SVM
+
+[source,bash]
+----
+aws fsx describe-storage-virtual-machines
+----
+
+Next, we'll assign the ManagementIP to the SVMIP variable.
+
+[source,bash]
+----
+export SVMIP=$(aws fsx describe-storage-virtual-machines | jq -r '.StorageVirtualMachines[].Endpoints.Management.IpAddresses[]') && echo $SVMIP
+----
+
+And then update `backend-ontap-nas.yml`
+
+[source,bash]
+---
+sed -i 's/<<management-ip>>/$SVMIP/g' backend-ontap-nas.yml
+----
+
+Review the contents of the file:
+
+[source,bash]
+----
+cat backend-ontap-nas.yml
+----
+
+Example:
+[listing]
 ----
 apiVersion: trident.netapp.io/v1
 kind: TridentBackendConfig
@@ -500,7 +530,7 @@ select * from erp.Persons;
 Type `exit` to exit the mysql server and `exit` again to exit the pod.  You should now be back at the bastion prompt
 
 
-[[scale-mysql-pods]]
+// [[scale-mysql-pods]]
 // === Scale MySQL application pods 
 
 // You can easily scale the MySQL StatefulSet application using the following command.
@@ -532,7 +562,7 @@ Type `exit` to exit the mysql server and `exit` again to exit the pod.  You shou
 
 FSx for ONTAP supports snapshots, which are point-in-time read-only images of your volumes that consume minimal space and can be created near-instantly. You can use snapshots to create online backups of your data that are stored within the volume itself.
 
-cd into the fsx directory
+Make sure you are in the fsx directory
 [srouce,bash]
 ----
 cd ~/rosa-fsx/fsx
@@ -561,7 +591,7 @@ oc get volumesnapshots -n mysql | grep snap |tr -s " " |cut -d " " -f6
 
 == Delete the database "erp"
 
-To delete the database "erp" after creating a snapshot (backup) in 6.1, follow these steps:
+To delete the database "erp" after creating a snapshot (backup) follow these steps:
 
 Log into the container console using a new terminal. Please note that this is not the same as the one used in 6.1.
 

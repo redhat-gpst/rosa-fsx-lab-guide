@@ -7,7 +7,7 @@ spec:
   version: 1
   backendName: fsx-ontap
   storageDriverName: ontap-nas
-  managementLIF: <<management-ip>
+  managementLIF: <<management-ip>>
   dataLIF: <<management-ip>>
   svm: SVM1
   credentials:
