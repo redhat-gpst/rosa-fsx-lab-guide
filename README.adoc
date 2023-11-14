@@ -13,12 +13,14 @@ This lab guide assumes you are using the RHDP environment.
 Once you have the lab environment ready,  SSH into the bastion and follow the steps below.
 
 Steps: 
-  . <<logging-in, Logging in>>
-  . <<provision-fsx-for-ontap, Provision FSx for ONTAP>>
-  . <<install-and-configure-the-trident-csi-driver-for-rosa, Install and Configure the Trident CSI driver for ROSA>>
-  . <<deploy-sample-mysql-stateful-application,Deploy a Sample MySQL Stateful Applicaiton>>
-  . <<scale-mysql-application-pods,Scale MySQL Application Pods>>
-  . <<backup-and-restore-with-snapshots,Backup and Restore with Snapshots>>
+
+. <<logging-in, Logging in>>
+. <<provision-fsx-for-ontap, Provision FSx for ONTAP>>
+. <<install-and-configure-the-trident-csi-driver-for-rosa, Install and Configure the Trident CSI driver for ROSA>>
+. <<deploy-sample-mysql-stateful-application, Deploy a Sample MySQL Stateful Application>>
+. <<scale-mysql-application-pods, Scale MySQL Application Pods>>
+. <<backup-and-restore-with-snapshots, Backup and Restore with Snapshots>>
+
 
 
 [[logging-in]]
@@ -532,7 +534,9 @@ FSx for ONTAP supports snapshots, which are point-in-time read-only images of yo
 
 cd into the fsx directory
 [srouce,bash]
+----
 cd ~/rosa-fsx/fsx
+----
 
 Create the volume snapshot class
 
