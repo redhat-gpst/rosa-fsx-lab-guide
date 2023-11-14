@@ -295,7 +295,7 @@ export SVMIP=$(aws fsx describe-storage-virtual-machines | jq -r '.StorageVirtua
 And then update `backend-ontap-nas.yml`
 
 [source,bash]
----
+----
 sed -i 's/<<management-ip>>/$SVMIP/g' backend-ontap-nas.yml
 ----
 
