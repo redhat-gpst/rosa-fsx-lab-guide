@@ -63,7 +63,7 @@ Clone the git repository:
 git clone https://github.com/redhat-gpst/rosa-fsx-lab-guide.git rosa-fsx
 ----
 
-cd into the rosa-fsx/fsx directory. This will be the main working directory for the lab.
+`cd` into the rosa-fsx/fsx directory. This will be the main working directory for the lab.
 
 [source,shell]
 ----
@@ -230,18 +230,17 @@ TEST SUITE: None
 
 Use the the `fsx/svm_secret.yml` file
 
-cd to the fsx directory
+`cd` to the fsx directory
 [source,bash]
 ----
 cd ~/rosa-fsx/fsx
 ----
 
 View the `svm_secret.yml` file. Take note of the password.
+[source,bash]
 ----
 cat svm_secret.yml
 ----
-
-
 [listing]
 ----
 apiVersion: v1
@@ -254,7 +253,6 @@ stringData:
   username: vsadmin
   password: Rosa12345
 ----
-
 
 Add the secret to the ROSA cluster with the following command:
 
