@@ -148,7 +148,7 @@ aws cloudformation describe-stacks --stack ROSA-FSXONTAP | grep 'StackStatus'
 
 Once the stack is ready, you will se the `CREATE_COMPLETE` status
 [listing]
----
+----
 "StackStatus": "CREATE_COMPLETE",
 ----
 
