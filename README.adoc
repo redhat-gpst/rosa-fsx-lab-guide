@@ -377,9 +377,9 @@ NOTE: If you want to verify applications can create a PV using the trident opera
 
 In this section, we will deploy the highly available MySQL application onto the ROSA cluster using a Kubernetes StatefulSet and have the PersistentVolume provisioned by Trident. Kubernetes StatefulSet ensures the original PersistentVolume (PV) is mounted on the same pod identity when its rescheduled again to retain data integrity and consistency. For more information about the MySQL application replication configuration, please refer to the link:https://dev.mysql.com/doc/refman/8.0/en/replication.html[MySQL Official document].
 
-Before we begin with MySQL application deployment, we will store the application’s sensitive information like username and password in Secrets. We will be creating simple secrets.
+Before we begin with MySQL application deployment, we will store the application’s sensitive information like username and password in Secrets. We will be creating a simple secret.
 
-cd into the `~/rosa-fsx/fsx/mysql` directory 
+`cd` into the `~/rosa-fsx/fsx/mysql` directory 
 
 [source,shell]
 ----
@@ -392,10 +392,12 @@ Create the mysql namespace
 oc create ns mysql
 ----
 
+Note:  `password` is the default password but can be chagned in the `mysql-secret.yml` file
+
 Create the mysql secret
 [source,bash]
 ----
-oc apply -f mysql-secrets.yml
+oc apply -f mysql-secret.yml
 ----
 
 Now, verify the secrets were created.
@@ -411,7 +413,7 @@ mysql-password             opaque                                1      1h34m
 ----
 
 
-Next we will deploy MySQL StatefulSet application on the ROSA cluster. Open `mysql/mysql-statefulset.yml` and review the details –metadata, replicas, and storageclass name. Then, execute the following command. 
+Next we will deploy MySQL StatefulSet application on the ROSA cluster. Open `mysql/mysql-statefulset.yml` and review the details –metadata, replicas, and storageclass name. Then, execute the following command.  For simplicity in this lab, we are only going to create one (1) replica set.
 
 NOTE: Ignore any warnings about PodSecurity
 
@@ -431,8 +433,7 @@ oc get pods -n mysql
 ----
 NAME          READY   STATUS    RESTARTS   AGE
 mysql-set-0   1/1     Running   0          40s
-mysql-set-1   1/1     Running   0          22s
-mysql-set-2   1/1     Running   0          8s
+
 ----
 
 Verify the PVCs are created by the MySQL application. 
@@ -445,8 +446,7 @@ oc get pvc -n mysql
 ----
 NAME                      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
 mysql-store-mysql-set-0   Bound    pvc-676d059c-1480-4e36-963e-2249efc70331   10Gi       RWX            trident-csi    4h4m
-mysql-store-mysql-set-1   Bound    pvc-073c6a8c-27ab-42f0-b520-74ea90e2d66d   10Gi       RWX            trident-csi    4h4m
-mysql-store-mysql-set-2   Bound    pvc-df93b37d-45f8-4011-9908-654ed67acd17   10Gi       RWX            trident-csi    4h3m
+
 ----
 
 === Create a service for the StatefulSet application
@@ -561,7 +561,7 @@ Use the following to find the name of the snapshot. You will need this in a late
 
 [source, bash]
 ----
-oc get volumesnapshots -n mysql | grep snap |tr -s " " |cut -d " " -f6
+oc get volumesnapshots -n mysql 
 ----
 
 == Delete the database "erp"
@@ -599,12 +599,38 @@ Remember, before deleting any database, ensure that you have a proper backup of 
 
 === Restore the snapshot
 
+First, create a new pvc from the snapshot.
 
+[source,bash]
+----
+oc apply -f restore-snapshot-to-pvc.yml
+----
+
+Then create a new MySQL application using the new pvc.
+
+[source,bash]
+----
+oc apply -f mysql/mysql-deployment-clone.yml
+----
+
+Verify the new pod is running.
+
+[source,bash]
+----
+oc get pods -n mysql
+----
 
 === Validate the Database Restored Immediately
-Given we just restored the database in  we will validate the database is restored as expected.
 
-Go back to the container console 
+Given that we just restored the database, we will validate the database is restored as expected.
+
+
+[source,bash]
+----
+oc exec -n mysql -it mysql-fsx-7db4f45b8-tpdb4 -- mysql -u root -p
+----
+
+Enter the password 'password' when prompted.
 
 === Show Databases
 [source,sql]
@@ -627,3 +653,6 @@ MySQL [(none)]> select * from erp.Persons;
 | 1234 | John      | Doe      |
 +------+-----------+----------+
 ----
+
+
+Type `quit` and then you have completed the lab!
