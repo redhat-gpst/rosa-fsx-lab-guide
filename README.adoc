@@ -169,48 +169,19 @@ aws fsx describe-storage-virtual-machines
 
 == Install and configure the Trident CSI driver for ROSA 
 
+Next, we will install the Trident CSI driver.
 
-We will be installing the Trident CSI driver in the Openshift `trident` namespace. 
-
-[source,shell]
+Add the Astra Trident Helm repository:
+[source,bash]
 ----
-oc create ns trident
-----
-
-Verify the namespace was created
-
-[source, bash]
-----
-oc get ns trident
-----
-[listing]
-NAME      STATUS   AGE
-trident   Active   6s
-
-
-Next, download the Trident CSI driver from github:
-
-[source,shell]
-----
-curl -L -o trident-installer.tar.gz \ 
-  https://github.com/NetApp/trident/releases/download/v22.10.0/trident-installer-22.10.0.tar.gz
+helm repo add netapp-trident https://netapp.github.io/trident-helm-chart
 ----
 
-Then, extract the contents:
-
-[source,shell]
+Use `helm install` to install Trident driver in the trident namespace.
+[source,bash]
 ----
-tar -xvf ./trident-installer.tar.gz
+helm install trident netapp-trident/trident-operator --version 23.01.1 --create-namespace --namespace trident
 ----
-
-Use the following helm command to install the Trident CSI driver in the “trident” namespace on the OpenShift cluster.
-
-[source,shell]
-----
-cd ~/rosa-fsx/fsx/trident-installer/helm && helm install trident -n trident trident-operator-22.10.0.tgz
-----
-
-Run the following command to verify the Trident driver installation.
 
 [source,shell]
 ----
@@ -225,6 +196,33 @@ STATUS: deployed
 REVISION: 1
 TEST SUITE: None
 ----
+
+
+// Next, download the Trident CSI driver from github:
+
+// [source,shell]
+// ----
+// curl -L -o trident-installer.tar.gz \ 
+//   https://github.com/NetApp/trident/releases/download/v22.10.0/trident-installer-22.10.0.tar.gz
+// ----
+
+// Then, extract the contents:
+
+// [source,shell]
+// ----
+// tar -xvf ./trident-installer.tar.gz
+// ----
+
+// Use the following helm command to install the Trident CSI driver in the “trident” namespace on the OpenShift cluster.
+
+// [source,shell]
+// ----
+// cd ~/rosa-fsx/fsx/trident-installer/helm && helm install trident -n trident trident-operator-22.10.0.tgz
+// ----
+
+Run the following command to verify the Trident driver installation.
+
+
 
 === Create secret to store the SVM username and password in ROSA cluster
 
