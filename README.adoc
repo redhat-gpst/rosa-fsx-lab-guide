@@ -392,9 +392,16 @@ Create the mysql namespace
 oc create ns mysql
 ----
 
-Note:  `password` is the default password but can be chagned in the `mysql-secret.yml` file
+We'll use the mysql project as our default project
+[source,bash]
+----
+oc project mysql
+----
 
 Create the mysql secret
+
+Note: `password` is the default password but can be chagned in the `mysql-secret.yml` file
+
 [source,bash]
 ----
 oc apply -f mysql-secret.yml
@@ -404,7 +411,7 @@ Now, verify the secrets were created.
 
 [source,bash]
 ----
-oc get secrets -n mysql | awk '/NAME|mysql-password/'
+oc get secrets | awk '/NAME|mysql-password/'
 ----
 [listing]
 ----
@@ -568,7 +575,7 @@ oc get volumesnapshots -n mysql
 
 To delete the database "erp" after creating a snapshot (backup) follow these steps:
 
-Log into the container console using a new terminal. Please note that this is not the same as the one used in 6.1.
+
 
 [source,bash]
 ----
