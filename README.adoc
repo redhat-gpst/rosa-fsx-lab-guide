@@ -1,13 +1,12 @@
 = ROSA FSx Workshop
 
 
-This lab guide provides a walkthrough on using FSx for ONTAP as a persistent storage layer for *Red Hat OpenShift Service on AWS* (ROSA) applications. It will guide you through the steps required to install the NetApp Trident Container Storage Interface (CSI) driver on a ROSA cluster. Additionally, you will learn how to provision an FSx for ONTAP file system, deploy a sample stateful application, and how to scale pods with dynamic persistent volumes. To ensure your data’s resilience, the guide concludes with instructions on how to backup and restore your applications. 
+This lab guide provides a walkthrough on using FSx for ONTAP as a persistent storage layer for *Red Hat OpenShift Service on AWS* (ROSA) applications. It will guide you through the steps required to install the NetApp Trident Container Storage Interface (CSI) driver on a ROSA cluster. Additionally, you will learn how to provision an FSx for ONTAP file system, deploy a sample stateful application. To ensure your data’s resilience, you learn how to backup and restore your application data. 
 
-This solution facilitates the creation of a shared storage system that can not only extend across Availability Zones (AZs) but also simplifies the tasks of scaling, protecting, and recovering your data with the Trident CSI driver.
 
-NOTE: Red Hat associates that have access to the Red Hat Demo Platform (RHDP) can launch the ROSA FSx Workshop for a lab environment.
+Red Hat associates that have access to the Red Hat Demo Platform (RHDP) can launch the ROSA FSx Workshop for a lab environment.
 
-This lab guide assumes you are using the RHDP environment.
+Note: This lab guide assumes you are using the RHDP environment.
 
 
 Once you have the lab environment ready,  SSH into the bastion and follow the steps below.
@@ -18,7 +17,6 @@ Steps:
 . <<provision-fsx-for-ontap, Provision FSx for ONTAP>>
 . <<install-and-configure-the-trident-csi-driver-for-rosa, Install and Configure the Trident CSI driver for ROSA>>
 . <<deploy-sample-mysql-stateful-application, Deploy a Sample MySQL Stateful Application>>
-. <<scale-mysql-application-pods, Scale MySQL Application Pods>>
 . <<backup-and-restore-with-snapshots, Backup and Restore with Snapshots>>
 
 
@@ -54,6 +52,9 @@ cd ~/rosa-fsx/fsx
 [[provision-fsx]]
 == Provision FSx for ONTAP 
 
+
+* FSx for NetApp ONTAP provides fully managed shared storage with features like snapshots, cloning, and data tiering. It's integrated with AWS, allowing for seamless cloud storage solutions.
+* In this step, you're setting up the FSx for ONTAP file system which will be used as the backend storage for your OpenShift applications.
 
 We will create a single-AZ FSx for ONTAP file system in the same VPC as the ROSA cluster.
 
@@ -152,6 +153,9 @@ aws fsx describe-storage-virtual-machines
 [[config-trident]]
 
 == Install and configure the Trident CSI driver for ROSA 
+
+* Trident is NetApp's dynamic storage orchestrator for OpenShift. It automates and manages storage resources for containers.
+* By installing Trident, you're enabling your ROSA cluster to dynamically provision and manage storage resources on FSx for ONTAP, providing a robust and scalable storage solution for your applications.
 
 Next, we will install the Trident CSI driver.
 
@@ -318,16 +322,12 @@ trident-csi     csi.trident.netapp.io   Retain          Immediate              t
 ----
 
 This completes installation of Trident CSI driver and its connectivity to FSx for ONTAP file system. 
-Next, we will deploy a sample MySQL stateful application on ROSA using file volumes in FSx for ONTAP.
-
-We will then take a snapshot of the data before deleting the MySQL data and then restoring the data to a new pvc.
-
-NOTE: If you want to verify applications can create a PV using the trident operator, create a PVC using the `pvc-trident.yml` file provided in `fsx` folder.
 
 [[deploy-mysql]]
 == Deploy sample MySQL stateful application 
 
-In this section, we will deploy the highly available MySQL application onto the ROSA cluster using a Kubernetes StatefulSet and have the PersistentVolume provisioned by Trident. Kubernetes StatefulSet ensures the original PersistentVolume (PV) is mounted on the same pod identity when its rescheduled again to retain data integrity and consistency. For more information about the MySQL application replication configuration, please refer to the link:https://dev.mysql.com/doc/refman/8.0/en/replication.html[MySQL Official document].
+* Stateful applications like databases need to maintain data across pod restarts. Using PVCs, Trident ensures data persistence for these applications.
+* Deploying MySQL as a sample stateful application gives a practical example of how Trident integrates with OpenShift to manage data for stateful applications, ensuring data is not lost when pods are moved or restarted.
 
 Before we begin with MySQL application deployment, we will store the application’s sensitive information like username and password in Secrets. We will be creating a simple secret.
 
@@ -410,9 +410,10 @@ mysql-fsx-7db4f45b8-mmfzv   1/1     Running   0          40s
 
 ----
 
-=== Create a service for the StatefulSet application
+=== Create a service for the MySQL application
 
-An OpenShift service defines a logical set of pods and a policy to access pods. StatefulSet currently requires a headless service to control the domain of its pods, directly reaching each pod with stable DNS entries. By specifying “None” for the clusterIP, you can create a headless service.
+* A service in OpenShift acts as an internal load balancer. It provides a stable endpoint through which other pods within the cluster can access the MySQL application, regardless of the individual states of the MySQL pods.
+* By specifying a service for MySQL, you provide a consistent internal address for the database, ensuring seamless communication even as pods are scaled or restarted.
 
 [source,shell]
 ----
@@ -496,7 +497,9 @@ Type `exit` to exit the mysql server and `exit` again to exit the pod.  You shou
 [[backup-restore]]
 == Backup and Restore with Snapshots
 
-FSx for ONTAP supports snapshots, which are point-in-time read-only images of your volumes that consume minimal space and can be created near-instantly. You can use snapshots to create online backups of your data that are stored within the volume itself.
+* Snapshots are point-in-time copies of your data, crucial for backup and disaster recovery.
+* Here, you’ll learn how to use Trident with FSx for ONTAP to create snapshots for backup, and how to restore your application data from these snapshots. This is vital for protecting your application against data loss.
+
 
 Create the volume snapshot class
 
@@ -521,9 +524,11 @@ oc get volumesnapshots
 
 == Delete the database "erp"
 
+* This part of the lab emphasizes the importance of data resilience strategies. 
+* Deleting and restoring the database demonstrates the practical use of snapshots in a real-world scenario.
+* This demonstrates the quick and efficient data recovery capabilities of Trident and FSx for ONTAP in managing and protecting OpenShift stateful application data. 
+
 To delete the database "erp" after creating a snapshot (backup) follow these steps:
-
-
 
 [source,bash]
 ----
