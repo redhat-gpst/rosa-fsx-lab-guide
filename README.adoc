@@ -28,7 +28,7 @@ Steps:
 
 The bastion provided with the RHDP workshop has the `aws` and `rosa` command line tools already installed and logged in.  The `oc` command is installed, but not logged in.
 
-To login `oc` use the username and password provided by the RHDP lab deployment.
+To login `oc` use the API URL, username, and password provided by the RHDP lab deployment.
 
 Replace the password with your own. 
 [source,bash]
