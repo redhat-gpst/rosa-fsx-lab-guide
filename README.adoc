@@ -16,6 +16,7 @@ Steps:
 . <<lab-setup, Lab Setup>>
 . <<provision-fsx-for-ontap, Provision FSx for ONTAP>>
 . <<install-and-configure-the-trident-csi-driver-for-rosa, Install and Configure the Trident CSI driver for ROSA>>
+. << Install and Configure the Trident CSI backend to FSx for ONTAP
 . <<deploy-sample-mysql-stateful-application, Deploy a Sample MySQL Stateful Application>>
 . <<backup-and-restore-with-snapshots, Backup and Restore with Snapshots>>
 
@@ -24,7 +25,11 @@ Steps:
 [[lab-setup]]
 == Lab Setup
 
+=== Login oc command to the cluster
+
 The bastion provided with the RHDP workshop has the `aws` and `rosa` command line tools already installed and logged in.  The `oc` command is installed, but not logged in.
+
+
 
 To login `oc` use the API URL, username, and password provided by the RHDP lab deployment.
 
@@ -34,6 +39,8 @@ Replace the password with your own. Remember this is senstive data, so do not sh
 ----
 oc login https://api.rosa-abc12.ab12.p1.openshiftapps.com:6443 -u cluster-admin -p {{ password }}
 ----
+
+=== Clone git
 
 Clone the git repository:
 
@@ -49,13 +56,15 @@ git clone https://github.com/redhat-gpst/rosa-fsx-lab-guide.git rosa-fsx
 cd ~/rosa-fsx/fsx
 ----
 
-[[provision-fsx]]
-== Provision FSx for ONTAP 
+
+== Provision FSx for ONTAP  [[provision-fsx]]
 
 
 * FSx for NetApp ONTAP provides fully managed shared storage with features like snapshots, cloning, and data tiering. It's integrated with AWS, allowing for seamless cloud storage solutions.
 * In this step, you're setting up the FSx for ONTAP file system which will be used as the backend storage for your OpenShift applications.
 * We will create a single-AZ FSx for ONTAP file system in the same VPC as the ROSA cluster.
+
+=== Get Subnet and VPC IDs
 
 Let's take a look at the VPC subnets.
 
@@ -97,6 +106,8 @@ Run the following command to assign the VpcId to the VPCID variable.
 export VPCID=$(aws ec2 describe-subnets --query 'Subnets[?CidrBlock==`10.0.0.0/17`].VpcId' \
    --output json | jq -r '.[0]') && echo $VPCID
 ----
+
+=== Create the FSx stack
 
 Run the following command to create the stack
 
@@ -148,13 +159,12 @@ aws fsx describe-file-systems
 aws fsx describe-storage-virtual-machines
 ----
 
-
-[[config-trident]]
-
-== Install and configure the Trident CSI driver for ROSA 
+== Install and Configure the Trident CSI driver for ROSA [[config-trident]]
 
 * Trident is NetApp's dynamic storage orchestrator for OpenShift. It automates and manages storage resources for containers.
 * By installing Trident, you're enabling your ROSA cluster to dynamically provision and manage storage resources on FSx for ONTAP, providing a robust and scalable storage solution for your applications.
+
+=== Install Trident
 
 To begin, add the Astra Trident Helm repository
 
@@ -227,17 +237,14 @@ backend-fsx-ontap-nas-secret         Opaque                                2    
 ----
 
 
-=== Install and Configure Trident CSI backend to FSx for ONTAP
+== Install and Configure the Trident CSI backend to FSx for ONTAP
 
 * The Trident backend configuration tells Trident how to communicate with the storage system, in this case, FSx for ONTAP. 
 * We willl use the `ontap-nas` driver to provision storage volumes.
 * We are going to edit `backend-ontap-nas.yml` so it has the IP from the ManagementLIF and DataLIF IP addresses of the FSx Server Virtual Mancine.
 
 
-NOTE: `ManagementLIF` and `DataLIF` IP Addresses can also be found via the Amazon FSx Console under `Storage virtual machines` -> `Endpoints` 
-
-
-Assign the ManagementIP and SVMIP variables.
+=== Assign the Management IP and SVM IP variables.
 
 [source,bash]
 ----
@@ -296,14 +303,13 @@ NAME                    BACKEND NAME   BACKEND UUID                           PH
 backend-fsx-ontap-nas   fsx-ontap      1f490bf3-492c-4ef7-899e-9e7d8711c82f   Bound   Success
 ----
 
-=== Create storage class in ROSA cluster
+== Create storage class in ROSA cluster
 
 * A storage class defines how storage is dynamically provisioned, specifying attributes like size and performance.
 * A storage class automates the creation of storage volumes when applications request storage through PVCs.
 * This configures a storage class to work with Trident, ensuring efficient management of FSx for NetApp ONTAP as backend storage.
 
-
-Create the new `trident-csi` storage class.  
+=== Create the new `trident-csi` storage class.  
 
 Note: Use `cat` to view any files before applying them.
 
@@ -324,14 +330,15 @@ NAME            PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      A
 trident-csi     csi.trident.netapp.io   Retain          Immediate              true                   1h58m
 ----
 
-[[deploy-mysql]]
-== Deploy MySQL stateful application 
+== Deploy MySQL stateful application [[deploy-mysql]]
 
 * Stateful applications, like databases, need to maintain data across pod restarts. 
 * Using PVCs, Trident ensures data persistence for these applications.
 * Deploying MySQL as a sample stateful application gives a practical example of how Trident integrates with OpenShift to manage data for stateful applications, ensuring data is not lost when pods are moved or restarted.
 
-Before we begin with MySQL application deployment, we will store the application’s sensitive information like username and password in Secrets. We will be creating a simple secret.
+=== Setup the MySQL Project
+
+Before we create the MySQL application, we will creat a `mysql` project and store the application’s username and password in a Secret. 
 
 Create the mysql namespace
 [source,bash]
@@ -366,7 +373,7 @@ NAME                       TYPE                                  DATA   AGE
 mysql-password             opaque                                1      1h34m
 ----
 
-Now we’ll create a  pvc for our MySQL application. 
+=== Create a pvc for the MySQL application
 
 [source,bash]
 ----
@@ -386,8 +393,15 @@ NAME          STATUS   VOLUME                                     CAPACITY   ACC
 mysql-volume  Bound    pvc-676d059c-1480-4e36-963e-2249efc70331   10Gi       RWX            trident-csi    4h4m
 ----
 
+=== MySQL Application Deployment
 
-Next we will deploy the MySQL application on the ROSA cluster. Open `mysql-deployment.yml` and review the details –metadata, replicas, and storageclass name. Then, execute the following command.  For simplicity in this lab, we are only going to create one (1) replica set.
+Next we will deploy the MySQL application on the ROSA cluster. 
+
+Open `mysql-deployment.yml` and review the details –metadata, replicas, and storageclass name.
+For simplicity in this lab, we are only going to create one (1) replica set.
+
+
+Execute the following command.  
 
 NOTE: Ignore any warnings about PodSecurity
 
@@ -437,7 +451,7 @@ mysql   ClusterIP   None         <none>        3306/TCP   4h3m
 * The MySQL client is used to access the MySQL application using the service we created.
 * This provides a consistent entry point into the database.
 
-Review the content of `mysql-client.yml`` and then deploy the MySQL client using the following command.
+Review the content of `mysql-client.yml` and then deploy the MySQL client using the following command.
 
 [source,shell]
 ----
@@ -449,7 +463,9 @@ Verify the pod status.
 [source,shell]
 ----
 oc get pods
-----
+---- 
+
+=== Create a sample database
 
 Log in to the MySQL client pod.
 
@@ -465,7 +481,7 @@ Then, Install the MySQL client tool.
 apk add mysql-client
 ----
 
-Within the mysql-client pod, connect to the MySQL server.
+Within the `mysql-client` pod, connect to the MySQL server.
 
 [source,shell]
 ----
@@ -496,15 +512,14 @@ select * from erp.Persons;
 
 Type `exit` to exit the mysql server and `exit` again to exit the pod.  You should now be back at the bastion prompt
 
-
-[[backup-restore]]
-== Backup and Restore with Snapshots
+== Creating Snapshots [[creating-snapshots]]
 
 * Snapshots are point-in-time copies of your data, crucial for backup and disaster recovery.
-* Here, you’ll learn how to use Trident with FSx for ONTAP to create snapshots for backup, and how to restore your application data from these snapshots. This is vital for protecting your application against data loss.
+* Here, you’ll learn how to use Trident with FSx for ONTAP to create snapshots for backup, and how to restore your application data from these snapshots. 
+* This is vital for protecting your application against data loss.
 
 
-Create the volume snapshot class
+=== Create the volume snapshot class and snapshot
 
 [source,bash]
 ----
@@ -518,36 +533,42 @@ Next, create a snapshot of the exising MySQl data
 oc apply -f volume-snapshot.yml
 ----
 
-Use the following to find the name of the snapshot. You will need this in a later step
+Use the following to find the name of the snapshot.
 
 [source, bash]
 ----
 oc get volumesnapshots
 ----
 
-== Delete the database "erp"
+== Data Recovery
 
 * This part of the lab illustrates the use of snapshots in real-world scenarios through the deletion and restoration of the database.
 * This demonstrates the quick and efficient data recovery capabilities of Trident and FSx for ONTAP in managing and protecting OpenShift stateful application data. 
 
-To delete the database "erp" after creating a snapshot (backup) follow these steps:
+=== Delete the `erp` database
+
+To delete the database "erp" after creating a snapshot follow these steps:
 
 [source,bash]
 ----
 oc exec --stdin --tty mysql-client -n mysql -- sh
 ----
+
+Login to the MYSQL database.
+
 [source,bash]
 ----
 mysql -u root -p -h mysql.mysql.svc.cluster.local
 ----
 
-You will be prompted to enter the MySQL root password. After entering the password, you'll get into the MySQL command-line interface.
 
-Delete the "erp" database.
+
+
+Delete the "erp" database at the `MySQL [(none)]>` prompt
 
 [source,sql]
 ----
-MySQL [(none)]> DROP DATABASE erp;
+DROP DATABASE erp;
 ----
 
 After executing the DROP command, the database "erp" will be deleted, and you should see a message like:
@@ -557,18 +578,20 @@ After executing the DROP command, the database "erp" will be deleted, and you sh
 Query OK, 1 row affected
 ----
 
-Remember, before deleting any database, ensure that you have a proper backup of the data and are certain that you want to proceed with the deletion.
-
 === Restore the snapshot
 
-First, create a new pvc from the snapshot.  Note the name of the new pvc `mysql-volume-clone`
+First, create a new pvc from the snapshot.  
+
+Note the name of the new pvc `mysql-volume-clone`
 
 [source,bash]
 ----
 oc apply -f mysql-pvc-clone.yml
 ----
 
-Next, we are going to update the `mysql` application to point to the new pvc.
+=== Update the MySQL application
+
+We need to to update the `mysql` application to point to the new pvc.
 
 Edit `mysql-deployment.yml` with your favorite editor, `vim`
 
@@ -610,10 +633,8 @@ oc exec --stdin --tty mysql-client -n mysql -- sh
 mysql -u root -p -h mysql.mysql.svc.cluster.local
 ----
 
+Show Databases
 
-Enter the password `password` when prompted.
-
-=== Show Databases
 [source,sql]
 ----
 MySQL [(none)]> SHOW DATABASES;
@@ -624,7 +645,8 @@ MySQL [(none)]> SHOW DATABASES;
 +--------------------+
 ----
 
-=== Select from erp.Persons
+Show database data
+
 [source,sql]
 ----
 MySQL [(none)]> select * from erp.Persons;
