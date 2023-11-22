@@ -620,7 +620,7 @@ Verify the new pod is running.  This may take a minute.
 oc get pods -n mysql
 ----
 
-=== Validate the Database was Restored [[validation]]
+== Validate the Database was Restored [[validation]]
 
 * Validation confirms that the restored data is complete and accurate, maintaining the integrity of the database after a recovery process.
 * Validation helps in identifying any issues or gaps in the restoration process, allowing for timely corrections
