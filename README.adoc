@@ -6,12 +6,8 @@ This lab guide provides a walkthrough on using FSx for ONTAP as a persistent sto
 
 Red Hat associates that have access to the Red Hat Demo Platform (RHDP) can launch the ROSA FSx Workshop for a lab environment.
 
-NOTE: This lab guide assumes you are using the RHDP environment.   
+NOTE: This lab guide assumes you are using the RHDP environment and are logged into the bastion.   
 
-
-Once you have the lab environment ready,  SSH into the bastion and follow the steps below.
-
-Steps: 
 
 . <<lab-setup,Lab Setup>>
 . <<provision-fsx-for-ontap,Provision FSx for ONTAP>>
@@ -24,16 +20,12 @@ Steps:
 . <<validation,Validate the Database was Restored>>
 
 
-
-
 [[lab-setup]]
 == Lab Setup
 
 === Login oc command to the cluster
 
 The bastion provided with the RHDP workshop has the `aws` and `rosa` command line tools already installed and logged in.  The `oc` command is installed, but not logged in.
-
-
 
 To login `oc` use the API URL, username, and password provided by the RHDP lab deployment.
 
