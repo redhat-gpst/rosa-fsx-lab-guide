@@ -28,27 +28,15 @@ Steps:
 
 The bastion provided with the RHDP workshop has the `aws` and `rosa` command line tools already installed and logged in.  The `oc` command is installed, but not logged in.
 
-To login `oc`:
+To login `oc` use the username and password provided by the RHDP lab deployment.
 
-
-First, visit the OCP Web UI for the API URL.  Then use the API URL to login.
-
-Example:
-
-[source, bash]
+Replace the password with your own. 
+[source,bash]
 ----
-[rosa@bastion]$ oc login https://api.rosa-6slmk.qkm6.p1.openshiftapps.com:6443
-You must obtain an API token by visiting https://oauth-openshift.apps.rosa-6slmk.qkm6.p1.openshiftapps.com/oauth/token/request
-
-[rosa@bastion]$ oc login --token=sha256~Bt3c-m2dTmmHqGlo-xxxxxxxxxxxxxxxxxxxxxxxx --server=https://api.rosa-6slmk.qkm6.p1.openshiftapps.com:6443
-
-Logged into "https://api.rosa-6slmk.qkm6.p1.openshiftapps.com:6443" as "cluster-admin" using the token provided.
-
-You have access to 100 projects, the list has been suppressed. You can list all projects with 'oc projects'
+oc login https://api.rosa-abc12.ab12.p1.openshiftapps.com:6443 -u cluster-admin -p {{ password }}
 ----
 
 TIP:  You can also install the `'web-terminal` OpenShift operator and it will have the `oc` command installed and logged for you. Dont forget to clone the repo!
-
 
 [[provision-fsx]]
 == Provision FSx for ONTAP 
@@ -589,7 +577,7 @@ Update the last line with the name of the pvc we just created, `mysql-volume-clo
   claimName: mysql-volume-clone 
 ----
 
-Redeploy the application.  This will restart the pod so it points to the cloned pvc.
+Redeploy the application.  This will recreate the pod so it points to the cloned pvc.
 [source,bash]
 ----
 oc apply -f mysql-deployment.yml
