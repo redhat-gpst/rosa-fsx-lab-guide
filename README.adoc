@@ -538,24 +538,18 @@ Type `exit` to exit the mysql server and `exit` again to exit the pod.  You shou
 
 FSx for ONTAP supports snapshots, which are point-in-time read-only images of your volumes that consume minimal space and can be created near-instantly. You can use snapshots to create online backups of your data that are stored within the volume itself.
 
-Make sure you are in the fsx directory
-[srouce,bash]
-----
-cd ~/rosa-fsx/fsx
-----
-
 Create the volume snapshot class
 
 [source,bash]
 ----
-  oc apply -f volume-snapshot-class.yml
+oc apply -f volume-snapshot-class.yml
 ----
 
 Next, create a snapshot of the exising MySQl data
 
 [source,bash]
 ----
-  oc apply -f volume-snapshot.yml
+oc apply -f volume-snapshot.yml
 ----
 
 Use the following to find the name of the snapshot. You will need this in a later step
@@ -577,7 +571,7 @@ oc exec --stdin --tty mysql-client -n mysql -- sh
 ----
 [source,bash]
 ----
-mysql -u root -p -h mysql.mysql.mysql.svc.cluster.local
+mysql -u root -p -h mysql.mysql.svc.cluster.local
 ----
 
 You will be prompted to enter the MySQL root password. After entering the password, you'll get into the MySQL command-line interface.
@@ -600,21 +594,29 @@ Remember, before deleting any database, ensure that you have a proper backup of 
 
 === Restore the snapshot
 
-First, create a new pvc from the snapshot.
+First, create a new pvc from the snapshot.  Note the name of the new pvc `mysql-volume-clone`
 
 [source,bash]
 ----
-oc apply -f restore-snapshot-to-pvc.yml
+oc apply -f pvc-clone.yml
 ----
 
-Then create a new MySQL application using the new pvc.
+Next, we are going to update the `mysql` application to point to the new pvc.
 
+Edit `mysql-deployment.yml` with your favorite editor, `vim`
+
+Update the last line with the name of the pvc we just created, `mysql-volume-clone`
+[listing]
+----
+  claimName: mysql-volume-clone 
+----
+
+Redeploy the application.  This will restart the pod so it points to the cloned pvc.
 [source,bash]
 ----
-oc apply -f mysql/mysql-deployment-clone.yml
-----
+oc apply -f mysql-deployment.yml
 
-Verify the new pod is running.
+Verify the new pod is running.  This may take a minute.
 
 [source,bash]
 ----
@@ -626,10 +628,16 @@ oc get pods -n mysql
 Given that we just restored the database, we will validate the database is restored as expected.
 
 
+
 [source,bash]
 ----
-oc exec -n mysql -it mysql-fsx-7db4f45b8-tpdb4 -- mysql -u root -p
+oc exec --stdin --tty mysql-client -n mysql -- sh
 ----
+[source,bash]
+----
+mysql -u root -p -h mysql.mysql.svc.cluster.local
+----
+
 
 Enter the password 'password' when prompted.
 
@@ -656,4 +664,4 @@ MySQL [(none)]> select * from erp.Persons;
 ----
 
 
-Type `quit` and then you have completed the lab!
+Congrats.  You have completed the lab!

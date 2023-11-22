@@ -1,9 +1,9 @@
 apiVersion: snapshot.storage.k8s.io/v1
 kind: VolumeSnapshot
 metadata:
-  name: mysql-volume-snap-0
-  namespace: mysql
+  name: mysql-volume-snap-01
 spec:
   volumeSnapshotClassName: fsx-snapclass
   source:
-    persistentVolumeClaimName: mysql-store-mysql-set-0
+    persistentVolumeClaimName: mysql-volume
+

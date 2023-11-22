@@ -11,4 +11,4 @@ spec:
     port: 3306
   clusterIP: None
   selector:
-    app: mysql
+    app: mysql-fsx
