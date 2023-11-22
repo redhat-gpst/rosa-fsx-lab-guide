@@ -60,7 +60,8 @@ cd ~/rosa-fsx/fsx
 == Provision FSx for ONTAP  [[provision-fsx]]
 
 
-* FSx for NetApp ONTAP provides fully managed shared storage with features like snapshots, cloning, and data tiering. It's integrated with AWS, allowing for seamless cloud storage solutions.
+* FSx for NetApp ONTAP provides fully managed shared storage with features like snapshots, cloning, and data tiering. 
+* It's integrated with AWS, allowing for seamless cloud storage solutions.
 * In this step, you're setting up the FSx for ONTAP file system which will be used as the backend storage for your OpenShift applications.
 * We will create a single-AZ FSx for ONTAP file system in the same VPC as the ROSA cluster.
 
@@ -111,6 +112,8 @@ export VPCID=$(aws ec2 describe-subnets --query 'Subnets[?CidrBlock==`10.0.0.0/1
 
 Run the following command to create the stack
 
+NOTE: This can take 20 - 30 minutes
+
 [source,shell]
 ----
 aws cloudformation create-stack \
@@ -127,8 +130,6 @@ aws cloudformation create-stack \
      ParameterKey=SvmAdminPassword,ParameterValue=Rosa12345 \
   --capabilities CAPABILITY_NAMED_IAM
 ----
-
-NOTE: This can take 20 - 30 minutes
 
 You can monitor the progress with the following command. You may have to run it a few times before the stack is fully configured.
 
@@ -161,7 +162,8 @@ aws fsx describe-storage-virtual-machines
 
 == Install and Configure the Trident CSI driver for ROSA [[config-trident]]
 
-* Trident is NetApp's dynamic storage orchestrator for OpenShift. It automates and manages storage resources for containers.
+* Trident is NetApp's dynamic storage orchestrator for OpenShift. 
+* It automates and manages storage resources for containers.
 * By installing Trident, you're enabling your ROSA cluster to dynamically provision and manage storage resources on FSx for ONTAP, providing a robust and scalable storage solution for your applications.
 
 === Install Trident
@@ -180,7 +182,7 @@ Use `helm install` to install the Trident driver in the `trident` namespace. You
 helm install trident netapp-trident/trident-operator --version 23.01.1 --create-namespace --namespace trident
 ----
 
-Run the following command to verify the Trident driver installation.
+Verify the Trident driver installation.
 
 [source,shell]
 ----
@@ -217,14 +219,14 @@ stringData:
   password: Rosa12345
 ----
 
-Add the secret to the ROSA cluster with the following command:
+Add the secret to the ROSA cluster.
 
 [source, bash]
 ----
 oc apply -f svm_secret.yml
 ----
 
-To verify the secret has been added to the ROSA cluster, run the following command.
+Verify the secret has been added to the ROSA cluster.
 
 [source,bash]
 ----
@@ -237,14 +239,14 @@ backend-fsx-ontap-nas-secret         Opaque                                2    
 ----
 
 
-== Install and Configure the Trident CSI backend to FSx for ONTAP
+== Install and Configure the Trident CSI Backend to FSx for ONTAP
 
 * The Trident backend configuration tells Trident how to communicate with the storage system, in this case, FSx for ONTAP. 
 * We willl use the `ontap-nas` driver to provision storage volumes.
 * We are going to edit `backend-ontap-nas.yml` so it has the IP from the ManagementLIF and DataLIF IP addresses of the FSx Server Virtual Mancine.
 
 
-=== Assign the Management IP and SVM IP variables.
+=== Assign the the $SVMIP variable
 
 [source,bash]
 ----
@@ -284,7 +286,7 @@ spec:
     name: backend-fsx-ontap-nas-secret
 ----
 
-Next execute the following commands to configure the Trident backend in the ROSA cluster.
+Next, execute the following commands to create the Trident backend in the ROSA cluster.
 
 [source,shell]
 ----
