@@ -14,7 +14,7 @@ Once you have the lab environment ready,  SSH into the bastion and follow the st
 
 Steps: 
 
-. <<logging-in, Logging in>>
+. <<lab-setup, Lab Setup>>
 . <<provision-fsx-for-ontap, Provision FSx for ONTAP>>
 . <<install-and-configure-the-trident-csi-driver-for-rosa, Install and Configure the Trident CSI driver for ROSA>>
 . <<deploy-sample-mysql-stateful-application, Deploy a Sample MySQL Stateful Application>>
@@ -23,23 +23,21 @@ Steps:
 
 
 
-[[logging-in]]
-== Logging in  
+[[lab-setup]]
+== Lab Setup
 
 The bastion provided with the RHDP workshop has the `aws` and `rosa` command line tools already installed and logged in.  The `oc` command is installed, but not logged in.
 
 To login `oc` use the API URL, username, and password provided by the RHDP lab deployment.
 
-Replace the password with your own. 
+Replace the password with your own. Remember this is senstive data, so do not share with anyone.
+
 [source,bash]
 ----
 oc login https://api.rosa-abc12.ab12.p1.openshiftapps.com:6443 -u cluster-admin -p {{ password }}
 ----
 
 TIP:  You can also install the `'web-terminal` OpenShift operator and it will have the `oc` command installed and logged for you. Dont forget to clone the repo!
-
-[[provision-fsx]]
-== Provision FSx for ONTAP 
 
 [[clone-github-repository]]
 === Clone GitHub repository 
@@ -57,6 +55,9 @@ git clone https://github.com/redhat-gpst/rosa-fsx-lab-guide.git rosa-fsx
 ----
 cd ~/rosa-fsx/fsx
 ----
+
+[[provision-fsx]]
+== Provision FSx for ONTAP 
 
 
 We will create a single-AZ FSx for ONTAP file system in the same VPC as the ROSA cluster.
@@ -165,13 +166,12 @@ Add the Astra Trident Helm repository:
 helm repo add netapp-trident https://netapp.github.io/trident-helm-chart
 ----
 
-Use `helm install` to install the Trident driver in the `trident` namespace.
+Use `helm install` to install the Trident driver in the `trident` namespace. You may see a warning about Pod Security. It can be ignored.
+
 [source,bash]
 ----
 helm install trident netapp-trident/trident-operator --version 23.01.1 --create-namespace --namespace trident
 ----
-
-You may see a warning about Pod Security. It can be ignored.
 
 Run the following command to verify the Trident driver installation.
 
