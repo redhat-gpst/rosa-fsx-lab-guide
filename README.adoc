@@ -73,7 +73,7 @@ cd ~/rosa-fsx/fsx
 
 We will create a single-AZ FSx for ONTAP file system in the same VPC as the ROSA cluster.
 
-Let's take a look at the VPC sunets.
+Let's take a look at the VPC subnets.
 
 From the bastion, run the following command.  
 
@@ -152,7 +152,7 @@ Once the stack is ready, you will se the `CREATE_COMPLETE` status
 "StackStatus": "CREATE_COMPLETE",
 ----
 
-Verify your file system and storage virtual machine (SVM1) has been created.
+Verify your file system and storage virtual machine (SVM1) have been created.
 
 [source,bash]
 ----
@@ -177,11 +177,13 @@ Add the Astra Trident Helm repository:
 helm repo add netapp-trident https://netapp.github.io/trident-helm-chart
 ----
 
-Use `helm install` to install Trident driver in the trident namespace.
+Use `helm install` to install the Trident driver in the `trident` namespace.
 [source,bash]
 ----
 helm install trident netapp-trident/trident-operator --version 23.01.1 --create-namespace --namespace trident
 ----
+
+You may see a warning about Pod Security. It can be ignored.
 
 Run the following command to verify the Trident driver installation.
 
@@ -200,41 +202,7 @@ TEST SUITE: None
 ----
 
 
-// Next, download the Trident CSI driver from github:
-
-// [source,shell]
-// ----
-// curl -L -o trident-installer.tar.gz \ 
-//   https://github.com/NetApp/trident/releases/download/v22.10.0/trident-installer-22.10.0.tar.gz
-// ----
-
-// Then, extract the contents:
-
-// [source,shell]
-// ----
-// tar -xvf ./trident-installer.tar.gz
-// ----
-
-// Use the following helm command to install the Trident CSI driver in the “trident” namespace on the OpenShift cluster.
-
-// [source,shell]
-// ----
-// cd ~/rosa-fsx/fsx/trident-installer/helm && helm install trident -n trident trident-operator-22.10.0.tgz
-// ----
-
-
-
-
-
-=== Create secret to store the SVM username and password in ROSA cluster
-
-Use the the `fsx/svm_secret.yml` file
-
-Make sure you are in the `fsx` directory
-[source,bash]
-----
-cd ~/rosa-fsx/fsx
-----
+=== Create a secret to store the SVM username and password in the ROSA cluster
 
 View the `svm_secret.yml` file. Take note of the password.
 [source,bash]
@@ -284,7 +252,7 @@ We are going to edit `backend-ontap-nas.yml` so it has the IP from the Managemen
 NOTE: `ManagementLIF` and `DataLIF` IP Addresses can also be found via the Amazon FSx Console under `Storage virtual machines` -> `Endpoints` 
 
 
-Next, we'll assign the ManagementIP to the SVMIP variable.
+Next, we'll assign the ManagementIP and SVMIP variables.
 
 [source,bash]
 ----
@@ -345,7 +313,9 @@ backend-fsx-ontap-nas   fsx-ontap      1f490bf3-492c-4ef7-899e-9e7d8711c82f   Bo
 
 === Create storage class in ROSA cluster
 
-Now, create the storage class.  You can use the `cat` command to view any files before applying them.
+Now, create the new `trident-csi` storage class.  
+
+Note: Use `cat` to view any files before applying them.
 
 [source,shell]
 ----
@@ -386,7 +356,7 @@ Create the mysql namespace
 oc create ns mysql
 ----
 
-We'll use the mysql project as our default project
+We'll use the `mysql` project as our default project
 [source,bash]
 ----
 oc project mysql
@@ -394,7 +364,7 @@ oc project mysql
 
 Create the mysql secret
 
-Note: `password` is the default password but can be chagned in the `mysql-secret.yml` file
+Note: `password` is the password but can be chagned in the `mysql-secret.yml` file
 
 [source,bash]
 ----
@@ -413,40 +383,47 @@ NAME                       TYPE                                  DATA   AGE
 mysql-password             opaque                                1      1h34m
 ----
 
+Now we’ll create a  pvc for our MySQL application. 
 
-Next we will deploy a MySQL application on the ROSA cluster. Open `mysql/mysql-deployment.yml` and review the details –metadata, replicas, and storageclass name. Then, execute the following command.  For simplicity in this lab, we are only going to create one (1) replica set.
+[source,bash]
+----
+oc apply -f mysql-pvc
+----
+
+
+Verify the PVCs are created by the MySQL application. 
+
+[source,shell]
+----
+oc get pvc
+----
+[listing]
+----
+NAME          STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+mysql-volume  Bound    pvc-676d059c-1480-4e36-963e-2249efc70331   10Gi       RWX            trident-csi    4h4m
+----
+
+
+Next we will deploy a MySQL application on the ROSA cluster. Open `mysql-deployment.yml` and review the details –metadata, replicas, and storageclass name. Then, execute the following command.  For simplicity in this lab, we are only going to create one (1) replica set.
 
 NOTE: Ignore any warnings about PodSecurity
 
 [source,shell]
 ----
-oc apply -f mysql-statefulset.yml
+oc apply -f mysql-deployment.yml
 ----
 
 Verify the application deployment.  It will take a minute for the container to start.
 
 [source,shell]
 ----
-oc get pods -n mysql
+oc get pods
 ----
 
 [listing]
 ----
-NAME          READY   STATUS    RESTARTS   AGE
-mysql-set-0   1/1     Running   0          40s
-
-----
-
-Verify the PVCs are created by the MySQL application. 
-
-[source,shell]
-----
-oc get pvc -n mysql
-----
-[listing]
-----
-NAME                      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
-mysql-store-mysql-set-0   Bound    pvc-676d059c-1480-4e36-963e-2249efc70331   10Gi       RWX            trident-csi    4h4m
+NAME                        READY   STATUS    RESTARTS   AGE
+mysql-fsx-7db4f45b8-mmfzv   1/1     Running   0          40s
 
 ----
 
@@ -463,7 +440,7 @@ Verify the service.
 
 [source,shell]
 ----
-oc get svc -n mysql
+oc get svc
 ----
 [listing]
 ----
@@ -556,7 +533,7 @@ Use the following to find the name of the snapshot. You will need this in a late
 
 [source, bash]
 ----
-oc get volumesnapshots -n mysql 
+oc get volumesnapshots
 ----
 
 == Delete the database "erp"
@@ -598,7 +575,7 @@ First, create a new pvc from the snapshot.  Note the name of the new pvc `mysql-
 
 [source,bash]
 ----
-oc apply -f pvc-clone.yml
+oc apply -f mysql-pvc-clone.yml
 ----
 
 Next, we are going to update the `mysql` application to point to the new pvc.
@@ -625,7 +602,7 @@ Verify the new pod is running.  This may take a minute.
 oc get pods -n mysql
 ----
 
-=== Validate the Database Restored Immediately
+=== Validate the Database Restored
 
 Given that we just restored the database, we will validate the database is restored as expected.
 
@@ -641,7 +618,7 @@ mysql -u root -p -h mysql.mysql.svc.cluster.local
 ----
 
 
-Enter the password 'password' when prompted.
+Enter the password `password` when prompted.
 
 === Show Databases
 [source,sql]
