@@ -55,8 +55,7 @@ cd ~/rosa-fsx/fsx
 
 * FSx for NetApp ONTAP provides fully managed shared storage with features like snapshots, cloning, and data tiering. It's integrated with AWS, allowing for seamless cloud storage solutions.
 * In this step, you're setting up the FSx for ONTAP file system which will be used as the backend storage for your OpenShift applications.
-
-We will create a single-AZ FSx for ONTAP file system in the same VPC as the ROSA cluster.
+* We will create a single-AZ FSx for ONTAP file system in the same VPC as the ROSA cluster.
 
 Let's take a look at the VPC subnets.
 
@@ -157,9 +156,8 @@ aws fsx describe-storage-virtual-machines
 * Trident is NetApp's dynamic storage orchestrator for OpenShift. It automates and manages storage resources for containers.
 * By installing Trident, you're enabling your ROSA cluster to dynamically provision and manage storage resources on FSx for ONTAP, providing a robust and scalable storage solution for your applications.
 
-Next, we will install the Trident CSI driver.
+To begin, add the Astra Trident Helm repository
 
-Add the Astra Trident Helm repository:
 [source,bash]
 ----
 helm repo add netapp-trident https://netapp.github.io/trident-helm-chart
@@ -231,15 +229,15 @@ backend-fsx-ontap-nas-secret         Opaque                                2    
 
 === Install and Configure Trident CSI backend to FSx for ONTAP
 
-The Trident backend configuration tells Trident how to communicate with the storage system (in this case, FSx for ONTAP). We willl use the `ontap-nas` driver to provision storage volumes.
-
-We are going to edit `backend-ontap-nas.yml` so it has the IP from the ManagementLIF and DataLIF IP addresses of the FSx Server Virtual Mancine.
+* The Trident backend configuration tells Trident how to communicate with the storage system, in this case, FSx for ONTAP. 
+* We willl use the `ontap-nas` driver to provision storage volumes.
+* We are going to edit `backend-ontap-nas.yml` so it has the IP from the ManagementLIF and DataLIF IP addresses of the FSx Server Virtual Mancine.
 
 
 NOTE: `ManagementLIF` and `DataLIF` IP Addresses can also be found via the Amazon FSx Console under `Storage virtual machines` -> `Endpoints` 
 
 
-Next, we'll assign the ManagementIP and SVMIP variables.
+Assign the ManagementIP and SVMIP variables.
 
 [source,bash]
 ----
@@ -300,7 +298,12 @@ backend-fsx-ontap-nas   fsx-ontap      1f490bf3-492c-4ef7-899e-9e7d8711c82f   Bo
 
 === Create storage class in ROSA cluster
 
-Now, create the new `trident-csi` storage class.  
+* A storage class defines how storage is dynamically provisioned, specifying attributes like size and performance.
+* A storage class automates the creation of storage volumes when applications request storage through PVCs.
+* This configures a storage class to work with Trident, ensuring efficient management of FSx for NetApp ONTAP as backend storage.
+
+
+Create the new `trident-csi` storage class.  
 
 Note: Use `cat` to view any files before applying them.
 
@@ -321,17 +324,14 @@ NAME            PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      A
 trident-csi     csi.trident.netapp.io   Retain          Immediate              true                   1h58m
 ----
 
-This completes installation of Trident CSI driver and its connectivity to FSx for ONTAP file system. 
-
 [[deploy-mysql]]
-== Deploy sample MySQL stateful application 
+== Deploy MySQL stateful application 
 
-* Stateful applications, like databases, need to maintain data across pod restarts. Using PVCs, Trident ensures data persistence for these applications.
+* Stateful applications, like databases, need to maintain data across pod restarts. 
+* Using PVCs, Trident ensures data persistence for these applications.
 * Deploying MySQL as a sample stateful application gives a practical example of how Trident integrates with OpenShift to manage data for stateful applications, ensuring data is not lost when pods are moved or restarted.
 
 Before we begin with MySQL application deployment, we will store the application’s sensitive information like username and password in Secrets. We will be creating a simple secret.
-
-
 
 Create the mysql namespace
 [source,bash]
@@ -594,7 +594,8 @@ oc get pods -n mysql
 
 === Validate the Database Restored
 
-Given that we just restored the database, we will validate the database is restored as expected.
+* Validation confirms that the restored data is complete and accurate, maintaining the integrity of the database after a recovery process.
+* Validation helps in identifying any issues or gaps in the restoration process, allowing for timely corrections
 
 
 
