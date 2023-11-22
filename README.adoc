@@ -6,7 +6,7 @@ This lab guide provides a walkthrough on using FSx for ONTAP as a persistent sto
 
 Red Hat associates that have access to the Red Hat Demo Platform (RHDP) can launch the ROSA FSx Workshop for a lab environment.
 
-Note: This lab guide assumes you are using the RHDP environment.
+Note: This lab guide assumes you are using the RHDP environment.   
 
 
 Once you have the lab environment ready,  SSH into the bastion and follow the steps below.
