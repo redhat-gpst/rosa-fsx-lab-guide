@@ -39,9 +39,6 @@ oc login https://api.rosa-abc12.ab12.p1.openshiftapps.com:6443 -u cluster-admin 
 
 TIP:  You can also install the `'web-terminal` OpenShift operator and it will have the `oc` command installed and logged for you. Dont forget to clone the repo!
 
-[[clone-github-repository]]
-=== Clone GitHub repository 
-
 Clone the git repository:
 
 [source,bash]
