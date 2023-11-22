@@ -23,7 +23,7 @@ NOTE: This lab guide assumes you are using the RHDP environment and are logged i
 [[lab-setup]]
 == Lab Setup
 
-=== Login oc command to the cluster
+=== Login `oc` command to the cluster
 
 The bastion provided with the RHDP workshop has the `aws` and `rosa` command line tools already installed and logged in.  The `oc` command is installed, but not logged in.
 
@@ -96,7 +96,7 @@ export SUBNETID=$(aws ec2 describe-subnets --query 'Subnets[?CidrBlock==`10.0.0.
    --output json | jq -r '.[0]') && echo $SUBNETID
 ----
 
-Run the following command to assign the VpcId to the VPCID variable.
+Assign the VpcId to the VPCID variable.
 
 [source,bash]
 ----
@@ -106,7 +106,7 @@ export VPCID=$(aws ec2 describe-subnets --query 'Subnets[?CidrBlock==`10.0.0.0/1
 
 === Create the FSx stack
 
-Run the following command to create the stack
+Create the stack
 
 NOTE: This can take 20 - 30 minutes
 
@@ -357,7 +357,7 @@ Create the mysql secret
 oc apply -f mysql-secret.yml
 ----
 
-Now, verify the secrets were created.
+Verify the secret was created.
 
 [source,bash]
 ----
@@ -471,7 +471,7 @@ Log in to the MySQL client pod.
 oc exec --stdin --tty mysql-client -- sh
 ----
 
-Then, Install the MySQL client tool.
+Install the MySQL client tool.
 
 [source,shell]
 ----
@@ -485,7 +485,9 @@ Within the `mysql-client` pod, connect to the MySQL server.
 mysql -u root -p -h mysql-set-0.mysql.mysql.svc.cluster.local
 ----
 
-Enter the password that is stored in mysql-secrets.yml. Once connected, Create a database on the MySQL database.
+Enter the password that is stored in `mysql-secrets.yml`. 
+
+Once connected, we will create a new database.
 
 From the `MySQL [(none)]>` prompt enter the following:
 
@@ -523,7 +525,7 @@ Type `exit` to exit the mysql server and `exit` again to exit the pod.  You shou
 oc apply -f volume-snapshot-class.yml
 ----
 
-Next, create a snapshot of the exising MySQl data
+Create a snapshot of the exising MySQl data
 
 [source,bash]
 ----
@@ -539,12 +541,14 @@ oc get volumesnapshots
 
 == Data Recovery
 
-* This part of the lab illustrates the use of snapshots in real-world scenarios through the deletion and restoration of the database.
+* This illustrates the use of snapshots in real-world scenarios through the deletion and restoration of the database.
 * This demonstrates the quick and efficient data recovery capabilities of Trident and FSx for ONTAP in managing and protecting OpenShift stateful application data. 
 
 === Delete the `erp` database
 
-To delete the database "erp" after creating a snapshot follow these steps:
+To delete the database "erp" after creating a snapshot follow these steps.
+
+Log back in to the `mysql-cleint`
 
 [source,bash]
 ----
@@ -577,9 +581,9 @@ Query OK, 1 row affected
 
 === Restore the snapshot
 
-First, create a new pvc from the snapshot.  
+Create a new pvc from the snapshot.  
 
-Note the name of the new pvc `mysql-volume-clone`
+NOTE: The name of the new pvc is `mysql-volume-clone`
 
 [source,bash]
 ----
