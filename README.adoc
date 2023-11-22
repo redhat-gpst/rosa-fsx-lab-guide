@@ -606,7 +606,8 @@ Next, we are going to update the `mysql` application to point to the new pvc.
 Edit `mysql-deployment.yml` with your favorite editor, `vim`
 
 Update the last line with the name of the pvc we just created, `mysql-volume-clone`
-[listing]
+
+[source]
 ----
   claimName: mysql-volume-clone 
 ----
@@ -615,6 +616,7 @@ Redeploy the application.  This will restart the pod so it points to the cloned 
 [source,bash]
 ----
 oc apply -f mysql-deployment.yml
+----
 
 Verify the new pod is running.  This may take a minute.
 
