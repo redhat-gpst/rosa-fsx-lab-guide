@@ -16,9 +16,12 @@ Steps:
 . <<lab-setup, Lab Setup>>
 . <<provision-fsx-for-ontap, Provision FSx for ONTAP>>
 . <<install-and-configure-the-trident-csi-driver-for-rosa, Install and Configure the Trident CSI driver for ROSA>>
-. << Install and Configure the Trident CSI backend to FSx for ONTAP
-. <<deploy-sample-mysql-stateful-application, Deploy a Sample MySQL Stateful Application>>
-. <<backup-and-restore-with-snapshots, Backup and Restore with Snapshots>>
+. << Install and Configure the Trident CSI backend to FSx for ONTAP >>
+. << Create storage class in ROSA cluster >>
+. <<deploy-mysql, Deploy MySQL stateful application>>
+. << creating-snapshots,Creating Snapshots >>
+. << data-recovery,Data Recovery >>
+. << validation, Validate the Database was Restored >>
 
 
 
@@ -239,7 +242,7 @@ backend-fsx-ontap-nas-secret         Opaque                                2    
 ----
 
 
-== Install and Configure the Trident CSI Backend to FSx for ONTAP
+== Install and Configure the Trident CSI Backend to FSx for ONTAP [[csi-backend]]
 
 * The Trident backend configuration tells Trident how to communicate with the storage system, in this case, FSx for ONTAP. 
 * We willl use the `ontap-nas` driver to provision storage volumes.
@@ -305,15 +308,13 @@ NAME                    BACKEND NAME   BACKEND UUID                           PH
 backend-fsx-ontap-nas   fsx-ontap      1f490bf3-492c-4ef7-899e-9e7d8711c82f   Bound   Success
 ----
 
-== Create storage class in ROSA cluster
+== Create storage class in ROSA cluster [[storage-class]]
 
 * A storage class defines how storage is dynamically provisioned, specifying attributes like size and performance.
 * A storage class automates the creation of storage volumes when applications request storage through PVCs.
 * This configures a storage class to work with Trident, ensuring efficient management of FSx for NetApp ONTAP as backend storage.
 
 === Create the new `trident-csi` storage class.  
-
-Note: Use `cat` to view any files before applying them.
 
 [source,shell]
 ----
@@ -335,7 +336,7 @@ trident-csi     csi.trident.netapp.io   Retain          Immediate              t
 == Deploy MySQL stateful application [[deploy-mysql]]
 
 * Stateful applications, like databases, need to maintain data across pod restarts. 
-* Using PVCs, Trident ensures data persistence for these applications.
+* Using pvc's, Trident ensures data persistence for these applications.
 * Deploying MySQL as a sample stateful application gives a practical example of how Trident integrates with OpenShift to manage data for stateful applications, ensuring data is not lost when pods are moved or restarted.
 
 === Setup the MySQL Project
@@ -356,7 +357,7 @@ oc project mysql
 
 Create the mysql secret
 
-Note: `password` is the password but can be chagned in the `mysql-secret.yml` file
+`password` is the password but can be chagned in the `mysql-secret.yml` file
 
 [source,bash]
 ----
@@ -400,6 +401,7 @@ mysql-volume  Bound    pvc-676d059c-1480-4e36-963e-2249efc70331   10Gi       RWX
 Next we will deploy the MySQL application on the ROSA cluster. 
 
 Open `mysql-deployment.yml` and review the details –metadata, replicas, and storageclass name.
+
 For simplicity in this lab, we are only going to create one (1) replica set.
 
 
@@ -617,7 +619,7 @@ Verify the new pod is running.  This may take a minute.
 oc get pods -n mysql
 ----
 
-=== Validate the Database Restored
+=== Validate the Database was Restored [[validation]]
 
 * Validation confirms that the restored data is complete and accurate, maintaining the integrity of the database after a recovery process.
 * Validation helps in identifying any issues or gaps in the restoration process, allowing for timely corrections
