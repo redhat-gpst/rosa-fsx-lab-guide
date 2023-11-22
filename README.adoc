@@ -183,6 +183,8 @@ Use `helm install` to install Trident driver in the trident namespace.
 helm install trident netapp-trident/trident-operator --version 23.01.1 --create-namespace --namespace trident
 ----
 
+Run the following command to verify the Trident driver installation.
+
 [source,shell]
 ----
 helm status trident -n trident | grep "NAME:" -A 5
@@ -220,7 +222,7 @@ TEST SUITE: None
 // cd ~/rosa-fsx/fsx/trident-installer/helm && helm install trident -n trident trident-operator-22.10.0.tgz
 // ----
 
-Run the following command to verify the Trident driver installation.
+
 
 
 
@@ -228,7 +230,7 @@ Run the following command to verify the Trident driver installation.
 
 Use the the `fsx/svm_secret.yml` file
 
-`cd` to the fsx directory
+Make sure you are in the `fsx` directory
 [source,bash]
 ----
 cd ~/rosa-fsx/fsx
@@ -281,7 +283,6 @@ We are going to edit `backend-ontap-nas.yml` so it has the IP from the Managemen
 
 NOTE: `ManagementLIF` and `DataLIF` IP Addresses can also be found via the Amazon FSx Console under `Storage virtual machines` -> `Endpoints` 
 
-// image::images/smv1.png[]
 
 Next, we'll assign the ManagementIP to the SVMIP variable.
 
@@ -377,12 +378,7 @@ In this section, we will deploy the highly available MySQL application onto the 
 
 Before we begin with MySQL application deployment, we will store the application’s sensitive information like username and password in Secrets. We will be creating a simple secret.
 
-`cd` into the `~/rosa-fsx/fsx/mysql` directory 
 
-[source,shell]
-----
-cd ~/rosa-fsx/fsx/mysql
-----
 
 Create the mysql namespace
 [source,bash]
@@ -418,7 +414,7 @@ mysql-password             opaque                                1      1h34m
 ----
 
 
-Next we will deploy MySQL StatefulSet application on the ROSA cluster. Open `mysql/mysql-statefulset.yml` and review the details –metadata, replicas, and storageclass name. Then, execute the following command.  For simplicity in this lab, we are only going to create one (1) replica set.
+Next we will deploy a MySQL application on the ROSA cluster. Open `mysql/mysql-deployment.yml` and review the details –metadata, replicas, and storageclass name. Then, execute the following command.  For simplicity in this lab, we are only going to create one (1) replica set.
 
 NOTE: Ignore any warnings about PodSecurity
 
