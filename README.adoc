@@ -326,7 +326,7 @@ This completes installation of Trident CSI driver and its connectivity to FSx fo
 [[deploy-mysql]]
 == Deploy sample MySQL stateful application 
 
-* Stateful applications like databases need to maintain data across pod restarts. Using PVCs, Trident ensures data persistence for these applications.
+* Stateful applications, like databases, need to maintain data across pod restarts. Using PVCs, Trident ensures data persistence for these applications.
 * Deploying MySQL as a sample stateful application gives a practical example of how Trident integrates with OpenShift to manage data for stateful applications, ensuring data is not lost when pods are moved or restarted.
 
 Before we begin with MySQL application deployment, we will store the application’s sensitive information like username and password in Secrets. We will be creating a simple secret.
@@ -387,7 +387,7 @@ mysql-volume  Bound    pvc-676d059c-1480-4e36-963e-2249efc70331   10Gi       RWX
 ----
 
 
-Next we will deploy a MySQL application on the ROSA cluster. Open `mysql-deployment.yml` and review the details –metadata, replicas, and storageclass name. Then, execute the following command.  For simplicity in this lab, we are only going to create one (1) replica set.
+Next we will deploy the MySQL application on the ROSA cluster. Open `mysql-deployment.yml` and review the details –metadata, replicas, and storageclass name. Then, execute the following command.  For simplicity in this lab, we are only going to create one (1) replica set.
 
 NOTE: Ignore any warnings about PodSecurity
 
@@ -434,7 +434,10 @@ mysql   ClusterIP   None         <none>        3306/TCP   4h3m
 
 === Create MySQL client for MySQL
 
-The MySQL client is for us to access the MySQL applications that we just deployed. Review the content `mysql-client.yml``. Deploy MySQL client using the following command.
+* The MySQL client is used to access the MySQL application using the service we created.
+* This provides a consistent entry point into the database.
+
+Review the content of `mysql-client.yml`` and then deploy the MySQL client using the following command.
 
 [source,shell]
 ----
@@ -524,8 +527,7 @@ oc get volumesnapshots
 
 == Delete the database "erp"
 
-* This part of the lab emphasizes the importance of data resilience strategies. 
-* Deleting and restoring the database demonstrates the practical use of snapshots in a real-world scenario.
+* This part of the lab illustrates the use of snapshots in real-world scenarios through the deletion and restoration of the database.
 * This demonstrates the quick and efficient data recovery capabilities of Trident and FSx for ONTAP in managing and protecting OpenShift stateful application data. 
 
 To delete the database "erp" after creating a snapshot (backup) follow these steps:
