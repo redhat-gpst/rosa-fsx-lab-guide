@@ -13,15 +13,16 @@ Once you have the lab environment ready,  SSH into the bastion and follow the st
 
 Steps: 
 
-. <<lab-setup, Lab Setup>>
-. <<provision-fsx-for-ontap, Provision FSx for ONTAP>>
-. <<install-and-configure-the-trident-csi-driver-for-rosa, Install and Configure the Trident CSI driver for ROSA>>
-. << Install and Configure the Trident CSI backend to FSx for ONTAP >>
-. << Create storage class in ROSA cluster >>
-. <<deploy-mysql, Deploy MySQL stateful application>>
-. << creating-snapshots,Creating Snapshots >>
-. << data-recovery,Data Recovery >>
-. << validation, Validate the Database was Restored >>
+. <<lab-setup,Lab Setup>>
+. <<provision-fsx-for-ontap,Provision FSx for ONTAP>>
+. <<config-trident,Install and Configure the Trident CSI driver for ROSA>>
+. <<csi-backend,Install and Configure the Trident CSI backend to FSx for ONTAP>>
+. <<storage-class,Create storage class in ROSA cluster>>
+. <<deploy-mysql,Deploy MySQL stateful application>>
+. <<creating-snapshots,Creating Snapshots>>
+. <<data-recovery,Data Recovery>>
+. <<validation,Validate the Database was Restored>>
+
 
 
 
