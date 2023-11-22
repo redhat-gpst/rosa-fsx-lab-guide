@@ -1,5 +1,5 @@
 = ROSA FSx Workshop
-
+:numbered:
 
 This lab guide provides a walkthrough on using FSx for ONTAP as a persistent storage layer for applications on *Red Hat OpenShift Service on AWS* (ROSA). It will guide you through the steps to install the NetApp Trident Container Storage Interface (CSI) driver on a ROSA cluster. Additionally, you will learn how to provision an FSx for ONTAP file system, deploy a sample stateful application. To ensure your data’s resilience, you learn how to backup and restore your application data. 
 
@@ -370,7 +370,7 @@ Now we’ll create a  pvc for our MySQL application.
 
 [source,bash]
 ----
-oc apply -f mysql-pvc
+oc apply -f mysql-pvc.yml
 ----
 
 
