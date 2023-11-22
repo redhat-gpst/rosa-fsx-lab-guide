@@ -242,21 +242,23 @@ backend-fsx-ontap-nas-secret         Opaque                                2    
 * We are going to edit `backend-ontap-nas.yml` so it has the IP from the ManagementLIF and DataLIF IP addresses of the FSx Server Virtual Mancine.
 
 
-=== Assign the the $SVMIP variable
+=== Create the Trident Backend
+
+Assign the IP from the SVM to a variable.
 
 [source,bash]
 ----
 export SVMIP=$(aws fsx describe-storage-virtual-machines | jq -r '.StorageVirtualMachines[].Endpoints.Management.IpAddresses[]') && echo $SVMIP
 ----
 
-And then update `backend-ontap-nas.yml`
+And then update `backend-ontap-nas.yml` with the IP.
 
 [source,bash]
 ----
 sed -i "s/<<management-ip>>/$SVMIP/g" backend-ontap-nas.yml
 ----
 
-Review the contents of the file:
+Review the contents of the file.
 
 [source,bash]
 ----
@@ -461,6 +463,11 @@ Verify the pod status.
 ----
 oc get pods
 ---- 
+[listing]
+----
+NAME                         READY   STATUS    RESTARTS   AGE
+mysql-client                 1/1     Running   0          7s
+----
 
 === Create a sample database
 
@@ -482,7 +489,7 @@ Within the `mysql-client` pod, connect to the MySQL server.
 
 [source,shell]
 ----
-mysql -u root -p -h mysql-set-0.mysql.mysql.svc.cluster.local
+mysql -u root -p -h mysql.mysql.svc.cluster.local
 ----
 
 Enter the password that is stored in `mysql-secrets.yml`. 
@@ -562,9 +569,6 @@ Login to the MYSQL database.
 mysql -u root -p -h mysql.mysql.svc.cluster.local
 ----
 
-
-
-
 Delete the "erp" database at the `MySQL [(none)]>` prompt
 
 [source,sql]
@@ -579,7 +583,12 @@ After executing the DROP command, the database "erp" will be deleted, and you sh
 Query OK, 1 row affected
 ----
 
+Exit back out to the bastion prompt.
+
 === Restore the snapshot
+
+* Restoring a snapshot to a new PVC creates a new volume that mirrors the data state captured in the snapshot.
+* This process enables data recovery or access as it existed at the snapshot's creation, without altering the original volume.
 
 Create a new pvc from the snapshot.  
 
