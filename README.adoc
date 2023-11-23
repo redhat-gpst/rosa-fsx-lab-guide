@@ -448,7 +448,7 @@ NAME    TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)    AGE
 mysql   ClusterIP   None         <none>        3306/TCP   4h3m
 ----
 
-=== Create MySQL client for MySQL
+=== Create MySQL client
 
 * The MySQL client is used to access the MySQL application using the service we created.
 * This provides a consistent entry point into the database.
