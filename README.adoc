@@ -551,7 +551,7 @@ oc get volumesnapshots
 * This illustrates the use of snapshots in real-world scenarios through the deletion and restoration of the database.
 * This demonstrates the quick and efficient data recovery capabilities of Trident and FSx for ONTAP in managing and protecting OpenShift stateful application data. 
 
-=== Delete the `erp` database
+=== Delete the `erp` database. 
 
 To delete the database `erp` after creating a snapshot follow these steps.
 
