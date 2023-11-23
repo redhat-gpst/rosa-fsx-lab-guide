@@ -379,7 +379,7 @@ oc apply -f mysql-pvc.yml
 ----
 
 
-Verify the PVCs are created by the MySQL application. 
+Verify the pvc's are created by the MySQL application. 
 
 [source,shell]
 ----
@@ -553,7 +553,7 @@ oc get volumesnapshots
 
 === Delete the `erp` database
 
-To delete the database "erp" after creating a snapshot follow these steps.
+To delete the database `erp`` after creating a snapshot follow these steps.
 
 Log back in to the `mysql-cleint`
 
@@ -583,11 +583,17 @@ After executing the DROP command, the database "erp" will be deleted, and you sh
 Query OK, 1 row affected
 ----
 
+Verify the database has been deleted.
+[source,sql]
+----
+SHOW DATABASES;
+----
+
 Exit back out to the bastion prompt.
 
 === Restore the snapshot
 
-* Restoring a snapshot to a new PVC creates a new volume that mirrors the data state captured in the snapshot.
+* Restoring a snapshot to a new pvc creates a new volume that mirrors the data state captured in the snapshot.
 * This process enables data recovery or access as it existed at the snapshot's creation, without altering the original volume.
 
 Create a new pvc from the snapshot.  
