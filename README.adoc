@@ -553,7 +553,7 @@ oc get volumesnapshots
 
 === Delete the `erp` database
 
-To delete the database `erp`` after creating a snapshot follow these steps.
+To delete the database `erp` after creating a snapshot follow these steps.
 
 Log back in to the `mysql-cleint`
 
@@ -569,7 +569,7 @@ Login to the MYSQL database.
 mysql -u root -p -h mysql.mysql.svc.cluster.local
 ----
 
-Delete the "erp" database at the `MySQL [(none)]>` prompt
+Delete the `erp`` database at the `MySQL [(none)]>` prompt
 
 [source,sql]
 ----
