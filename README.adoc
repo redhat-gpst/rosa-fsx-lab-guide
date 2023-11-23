@@ -197,7 +197,10 @@ TEST SUITE: None
 
 === Create a secret to store the SVM username and password in the ROSA cluster
 
-View the `svm_secret.yml` file. Take note of the password.
+View the `svm_secret.yml` file. Take note of the password. 
+
+NOTE: Be sure to inpsect any files before applying them.
+
 [source,bash]
 ----
 cat svm_secret.yml
