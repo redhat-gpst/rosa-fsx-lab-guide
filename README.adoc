@@ -38,7 +38,7 @@ oc login https://api.rosa-abc12.ab12.p1.openshiftapps.com:6443 -u cluster-admin 
 
 === Git Clone the Lab Repo
 
-Clone the git repository:
+Clone the Git repository:
 
 [source,bash]
 ----
@@ -199,7 +199,7 @@ TEST SUITE: None
 
 View the `svm-secret.yml` file. Take note of the password. 
 
-NOTE: Be sure to inpsect any files before applying them.
+NOTE: Be sure to inspect any files before applying them.
 
 [source,bash]
 ----
@@ -428,7 +428,7 @@ mysql-fsx-7db4f45b8-mmfzv   1/1     Running   0          40s
 
 === Create a service for the MySQL application
 
-* A service in OpenShift acts as an internal load balancer. It provides a stable endpoint through which other pods within the cluster can access the MySQL application, regardless of the individual states of the MySQL pods.
+* A OPenShift service acts as an internal load balancer. It provides a stable endpoint through which other pods within the cluster can access the MySQL application, regardless of the individual states of the MySQL pods.
 * By specifying a service for MySQL, you provide a consistent internal address for the database, ensuring seamless communication even as pods are scaled or restarted.
 
 [source,shell]
@@ -631,7 +631,7 @@ Verify the new pod is running.  This may take a minute.
 
 [source,bash]
 ----
-oc get pods -n mysql
+oc get pods
 ----
 
 == Validate Database Restoration [[validation]]
