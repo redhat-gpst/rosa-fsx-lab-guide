@@ -29,7 +29,7 @@ The bastion provided with the RHDP workshop has the `aws` and `rosa` command lin
 
 To authenticate `oc` use the API URL, username, and password provided by the RHDP lab deployment.
 
-Replace the password with your own. Remember this is senstive data, so do not share with anyone.
+Replace the URL and password with your own. Remember this is senstive data, so do not share with anyone.
 
 [source,bash]
 ----
