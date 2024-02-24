@@ -1,32 +1,15 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: PersistentVolumeClaim
 metadata:
-  name: mysql-fsx-clone
+  name: mysql-volume-clone
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: mysql-fsx-clone
-  template:
-    metadata:
-      labels:
-        app: mysql-fsx-clone
-    spec:
-      containers:
-      - image: mysql:5.7
-        name: mysql
-        ports:
-        - containerPort: 3306
-        env: 
-          - name: MYSQL_ROOT_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: mysql-secret
-                key: MYSQL_ROOT_PASSWORD
-        volumeMounts:
-        - mountPath: /var/lib/mysql
-          name: mysqlvol
-      volumes:
-        - name: mysqlvol
-          persistentVolumeClaim:
-            claimName: mysql-volume-clone   
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: trident-csi
+  resources:
+    requests:
+      storage: 10Gi
+  dataSource:
+    name: mysql-volume-snap-01
+    kind: VolumeSnapshot
+    apiGroup: snapshot.storage.k8s.io
