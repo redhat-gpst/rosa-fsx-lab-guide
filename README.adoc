@@ -19,7 +19,8 @@ NOTE: This lab guide assumes you are using the RHDP environment and are logged i
 . <<data-recovery,Data Recovery>>
 . <<validation,Validate the Database was Restored>>
 
-
+<details open>
+<summary> Lab Setup </summary>
 [[lab-setup]]
 == Lab Setup
 
@@ -52,6 +53,7 @@ git clone https://github.com/redhat-gpst/rosa-fsx-lab-guide.git rosa-fsx
 cd ~/rosa-fsx/fsx
 ----
 
+</details>
 
 == Provision FSx for ONTAP  [[provision-fsx]]
 
