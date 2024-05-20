@@ -1,10 +1,18 @@
 
-* xref:module-01.adoc[0. Env. disc]
 
-* xref:module-02.adoc[1. RPM Native Container]
-** xref:module-02.adoc#repositories[Repositories]
-** xref:module-02.adoc#software[Software]
+* xref:storage-configuration.adoc[Storage Deployment & Configuration]
 
-* xref:module-03.adoc[2. GitHub Sourced Container]
-** xref:module-03.adoc#prerequisites[Install Prerequisites]
-** xref:module-03.adoc#container[Enable Container]
+** xref:storage-configuration.adoc#prov-fsx-ontab[Provision FSx for ONTAP]
+** xref:storage-configuration.adoc#trident-rosa[Install and Configure the Trident CSI driver for ROSA]
+
+** xref:storage-configuration.adoc#trident-ontap[install-trident-ontab.adoc[Install and Configure the Trident CSI backend to FSx for ONTAP]
+
+** xref:storage-configuration.adoc#storageclass[Create storage class in ROSA cluster]
+
+
+* xref:workload-example-mysql.adoc[Deploy stateful applicaiton]
+** xref:workload-example-mysql.adoc#deploy[Deploy MySQL stateful application]
+** xref:workload-example-mysql.adoc#create-snapshot[Creating Snapshots]
+** xref:workload-example-mysql.adoc#recovery[Data Recovery]
+** xref:workload-example-mysql.adoc#validate[Validate the Database was Restored]
+

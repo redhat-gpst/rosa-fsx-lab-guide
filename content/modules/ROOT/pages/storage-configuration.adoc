@@ -1,0 +1,286 @@
+
+# Storage configuration
+
+[#prov-fsx-ontab]
+== Provision FSx for ONTAP  [[provision-fsx]]
+
+* FSx for NetApp ONTAP provides fully managed shared storage with features like snapshots, cloning, and data tiering.
+* It's integrated with AWS, allowing for seamless cloud storage solutions.
+* In this step, you're setting up the FSx for ONTAP file system which will be used as the backend storage for your OpenShift applications.
+* We will create a single-AZ FSx for ONTAP file system in the same VPC as the ROSA cluster.
+
+=== Get Subnet and VPC IDs
+
+Let's take a look at the VPC subnets.
+
+From the bastion, run the following command.
+
+[source,bash]
+----
+aws ec2 describe-subnets --query 'Subnets[*].{SubnetId:SubnetId,VpcId:VpcId,CidrBlock:CidrBlock}' \
+   --output table
+----
+
+Output from commands will be showin in a box like below.
+
+[listing]
+----
+-------------------------------------------------------------------------
+|                             DescribeSubnets                           |
++----------------+----------------------------+-------------------------+
+|    CidrBlock   |         SubnetId           |          VpcId          |
++----------------+----------------------------+-------------------------+
+|  10.0.0.0/17   |  subnet-0c1e3b083f692a17f  |  vpc-0994809fd6f55252b  |
+|  192.168.0.0/24|  subnet-01b8fa59d97657eca  |  vpc-0a4106cf5b3b895b5  |
+|  10.0.128.0/17 |  subnet-0299fe13ba470aa9f  |  vpc-0994809fd6f55252b  |
++----------------+----------------------------+-------------------------+
+----
+
+Run the following command to assign the SubnetId to the SUBNETID variable.
+
+[source,bash]
+----
+export SUBNETID=$(aws ec2 describe-subnets --query 'Subnets[?CidrBlock==`10.0.0.0/17`].SubnetId' \
+   --output json | jq -r '.[0]') && echo $SUBNETID
+----
+
+Assign the VpcId to the VPCID variable.
+
+[source,bash]
+----
+export VPCID=$(aws ec2 describe-subnets --query 'Subnets[?CidrBlock==`10.0.0.0/17`].VpcId' \
+   --output json | jq -r '.[0]') && echo $VPCID
+----
+
+=== Create the FSx stack
+
+Create the stack
+
+NOTE: This can take 20 - 30 minutes
+
+[source,shell]
+----
+aws cloudformation create-stack \
+  --stack-name ROSA-FSXONTAP \
+  --template-body file://./FSxONTAP.yml \
+  --region us-east-2 \
+  --parameters \
+     ParameterKey=Subnet1ID,ParameterValue=$SUBNETID \
+     ParameterKey=myVpc,ParameterValue=$VPCID \
+     ParameterKey=FileSystemName,ParameterValue=ROSA-myFSxONTAP \
+     ParameterKey=ThroughputCapacity,ParameterValue=512 \
+     ParameterKey=FSxAllowedCIDR,ParameterValue=10.0.0.0/16 \
+     ParameterKey=FsxAdminPassword,ParameterValue=Rosa12345 \
+     ParameterKey=SvmAdminPassword,ParameterValue=Rosa12345 \
+  --capabilities CAPABILITY_NAMED_IAM
+----
+
+You can monitor the progress with the following command. You may have to run it a few times before the stack is fully configured.
+
+[source,bash]
+----
+aws cloudformation describe-stacks --stack ROSA-FSXONTAP | grep 'StackStatus'
+----
+[listing]
+----
+  "StackStatus": "CREATE_IN_PROGRESS",
+----
+
+Once the stack is ready, you will se the `CREATE_COMPLETE` status
+[listing]
+----
+"StackStatus": "CREATE_COMPLETE",
+----
+
+Verify your file system and storage virtual machine (SVM1) have been created.
+
+[source,bash]
+----
+aws fsx describe-file-systems
+----
+
+[source,bash]
+----
+aws fsx describe-storage-virtual-machines
+----
+
+
+[#trident-rosa]
+== Install and Configure the Trident CSI driver for ROSA [[config-trident]]
+
+* Trident is NetApp's dynamic storage orchestrator for OpenShift.
+* It automates and manages storage resources for containers.
+* By installing Trident, you're enabling your ROSA cluster to dynamically provision and manage storage resources on FSx for ONTAP, providing a robust and scalable storage solution for your applications.
+
+=== Install Trident
+
+To begin, add the Astra Trident Helm repository
+
+[source,bash]
+----
+helm repo add netapp-trident https://netapp.github.io/trident-helm-chart
+----
+
+Use `helm install` to install the Trident driver in the `trident` namespace. You may see a warning about Pod Security. It can be ignored.
+
+[source,bash]
+----
+helm install trident netapp-trident/trident-operator --version 23.01.1 --create-namespace --namespace trident
+----
+
+Verify the Trident driver installation.
+
+[source,shell]
+----
+helm status trident -n trident | grep "NAME:" -A 5
+----
+[listing]
+----
+NAME: trident
+LAST DEPLOYED: Mon Nov  6 20:52:31 2023
+NAMESPACE: trident
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+----
+
+
+=== Create a secret to store the SVM username and password in the ROSA cluster
+
+View the `svm-secret.yml` file. Take note of the password.
+
+NOTE: Be sure to inspect any files before applying them.
+
+[source,bash]
+----
+cat svm-secret.yml
+----
+[listing]
+----
+apiVersion: v1
+kind: Secret
+metadata:
+  name: backend-fsx-ontap-nas-secret
+  namespace: trident
+type: Opaque
+stringData:
+  username: vsadmin
+  password: Rosa12345
+----
+
+Add the secret to the ROSA cluster.
+
+[source, bash]
+----
+oc apply -f svm-secret.yml
+----
+
+Verify the secret has been added to the ROSA cluster.
+
+[source,bash]
+----
+oc get secrets -n trident | awk '/NAME|backend-fsx-ontap-nas-secret/'
+----
+[listing]
+----
+NAME                                 TYPE                                  DATA   AGE
+backend-fsx-ontap-nas-secret         Opaque                                2      24h
+----
+
+
+
+[#trident-ontap]
+== Install and Configure the Trident CSI Backend to FSx for ONTAP [[csi-backend]]
+
+* The Trident backend configuration tells Trident how to communicate with the storage system, in this case, FSx for ONTAP.
+* We willl use the `ontap-nas` driver to provision storage volumes.
+* We are going to edit `backend-ontap-nas.yml` so it has the IP from the ManagementLIF and DataLIF IP addresses of the FSx Server Virtual Mancine.
+
+
+=== Create the Trident Backend
+
+Assign the IP from the SVM to a variable.
+
+[source,bash]
+----
+export SVMIP=$(aws fsx describe-storage-virtual-machines | jq -r '.StorageVirtualMachines[].Endpoints.Management.IpAddresses[]') && echo $SVMIP
+----
+
+And then update `backend-ontap-nas.yml` with the IP.
+
+[source,bash]
+----
+sed -i "s/<<management-ip>>/$SVMIP/g" backend-ontap-nas.yml
+----
+
+Review the contents of the file.
+
+[source,bash]
+----
+cat backend-ontap-nas.yml
+----
+
+Example:
+[listing]
+----
+apiVersion: trident.netapp.io/v1
+kind: TridentBackendConfig
+metadata:
+  name: backend-fsx-ontap-nas
+  namespace: trident
+spec:
+  version: 1
+  backendName: fsx-ontap
+  storageDriverName: ontap-nas
+  managementLIF: 10.0.50.139
+  dataLIF: 10.0.50.139
+  svm: SVM1
+  credentials:
+    name: backend-fsx-ontap-nas-secret
+----
+
+Next, execute the following commands to create the Trident backend in the ROSA cluster.
+
+[source,shell]
+----
+oc apply -f backend-ontap-nas.yml
+----
+
+Verify the backend configuration.
+
+[source,shell]
+----
+oc get tbc -n trident
+----
+[listing]
+----
+NAME                    BACKEND NAME   BACKEND UUID                           PHASE   STATUS
+backend-fsx-ontap-nas   fsx-ontap      1f490bf3-492c-4ef7-899e-9e7d8711c82f   Bound   Success
+----
+
+[#storageclass]
+== Create storage class in ROSA cluster [[storage-class]]
+
+* A storage class defines how storage is dynamically provisioned, specifying attributes like size and performance.
+* A storage class automates the creation of storage volumes when applications request storage through PVCs.
+* This configures a storage class to work with Trident, ensuring efficient management of FSx for NetApp ONTAP as backend storage.
+
+=== Create the new `trident-csi` storage class.
+
+[source,shell]
+----
+oc apply -f storage-class-csi-nas.yml
+----
+
+Verify the status of the trident-csi storage class creation.
+
+[source,shell]
+----
+oc get sc | awk '/NAME|trident-csi/'
+----
+[listing]
+----
+NAME            PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
+trident-csi     csi.trident.netapp.io   Retain          Immediate              true                   1h58m
+----
+
