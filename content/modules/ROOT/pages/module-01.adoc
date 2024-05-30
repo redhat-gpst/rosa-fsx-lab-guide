@@ -15,7 +15,9 @@ Let's take a look at the VPC subnets.
 
 From the bastion, run the following command.
 
-[source,bash]
+[.lines_space]
+[.console-input]
+[source,bash,role=execute,subs="attributes"]
 ----
 aws ec2 describe-subnets --query 'Subnets[*].{SubnetId:SubnetId,VpcId:VpcId,CidrBlock:CidrBlock}' \
    --output table
@@ -23,7 +25,8 @@ aws ec2 describe-subnets --query 'Subnets[*].{SubnetId:SubnetId,VpcId:VpcId,Cidr
 
 Output from commands will be showin in a box like below.
 
-[listing]
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
 ----
 -------------------------------------------------------------------------
 |                             DescribeSubnets                           |
@@ -38,7 +41,7 @@ Output from commands will be showin in a box like below.
 
 Run the following command to assign the SubnetId to the SUBNETID variable.
 
-[source,bash]
+[source,bash,role=execute,subs="attributes"]
 ----
 export SUBNETID=$(aws ec2 describe-subnets --query 'Subnets[?CidrBlock==`10.0.0.0/17`].SubnetId' \
    --output json | jq -r '.[0]') && echo $SUBNETID
@@ -46,7 +49,7 @@ export SUBNETID=$(aws ec2 describe-subnets --query 'Subnets[?CidrBlock==`10.0.0.
 
 Assign the VpcId to the VPCID variable.
 
-[source,bash]
+[source,bash,role=execute,subs="attributes"]
 ----
 export VPCID=$(aws ec2 describe-subnets --query 'Subnets[?CidrBlock==`10.0.0.0/17`].VpcId' \
    --output json | jq -r '.[0]') && echo $VPCID
@@ -54,16 +57,20 @@ export VPCID=$(aws ec2 describe-subnets --query 'Subnets[?CidrBlock==`10.0.0.0/1
 
 === Create the FSx stack
 
+IMPORTANT: This step is option, please ask your instructor
+
 Create the stack
 
 NOTE: This can take 20 - 30 minutes
 
-[source,shell]
+[.lines_space]
+[.console-input]
+[source,bash,role=execute,subs="attributes"]
 ----
 aws cloudformation create-stack \
   --stack-name ROSA-FSXONTAP \
   --template-body file://./FSxONTAP.yml \
-  --region us-east-2 \
+  --region {aws_default_region} \
   --parameters \
      ParameterKey=Subnet1ID,ParameterValue=$SUBNETID \
      ParameterKey=myVpc,ParameterValue=$VPCID \
@@ -77,36 +84,43 @@ aws cloudformation create-stack \
 
 You can monitor the progress with the following command. You may have to run it a few times before the stack is fully configured.
 
-[source,bash]
+[.lines_space]
+[.console-input]
+[source,bash,role=execute,subs="attributes"]
 ----
 aws cloudformation describe-stacks --stack ROSA-FSXONTAP | grep 'StackStatus'
 ----
-[listing]
+
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
 ----
-  "StackStatus": "CREATE_IN_PROGRESS",
+"StackStatus": "CREATE_IN_PROGRESS",
 ----
 
 Once the stack is ready, you will se the `CREATE_COMPLETE` status
-[listing]
+
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
 ----
 "StackStatus": "CREATE_COMPLETE",
 ----
 
 Verify your file system and storage virtual machine (SVM1) have been created.
 
-[source,bash]
+[source,bash,role=execute,subs="attributes"]
 ----
 aws fsx describe-file-systems
 ----
 
-[source,bash]
+[source,bash,role=execute,subs="attributes"]
 ----
 aws fsx describe-storage-virtual-machines
 ----
 
 
 [#trident-rosa]
-== Install and Configure the Trident CSI driver for ROSA [[config-trident]]
+
+== Install and Configure the Trident CSI driver for ROSA
 
 * Trident is NetApp's dynamic storage orchestrator for OpenShift.
 * It automates and manages storage resources for containers.
@@ -116,25 +130,28 @@ aws fsx describe-storage-virtual-machines
 
 To begin, add the Astra Trident Helm repository
 
-[source,bash]
+[source,bash,role=execute,subs="attributes"]
 ----
 helm repo add netapp-trident https://netapp.github.io/trident-helm-chart
 ----
 
 Use `helm install` to install the Trident driver in the `trident` namespace. You may see a warning about Pod Security. It can be ignored.
 
-[source,bash]
+[source,bash,role=execute,subs="attributes"]
 ----
-helm install trident netapp-trident/trident-operator --version 23.01.1 --create-namespace --namespace trident
+helm install trident netapp-trident/trident-operator --version 24.02 --create-namespace --namespace trident
 ----
 
 Verify the Trident driver installation.
 
-[source,shell]
+[.lines_space]
+[.console-input]
+[source,bash,role=execute,subs="attributes"]
 ----
 helm status trident -n trident | grep "NAME:" -A 5
 ----
-[listing]
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
 ----
 NAME: trident
 LAST DEPLOYED: Mon Nov  6 20:52:31 2023
@@ -147,15 +164,19 @@ TEST SUITE: None
 
 === Create a secret to store the SVM username and password in the ROSA cluster
 
-View the `svm-secret.yml` file. Take note of the password.
+Download and view the `svm-secret.yml` file. Take note of the password.
 
 NOTE: Be sure to inspect any files before applying them.
 
-[source,bash]
+[.lines_space]
+[.console-input]
+[source,bash,role=execute,subs="attributes"]
 ----
+curl -L -O {git_repo_raw}fsx/svm-secret.yml
 cat svm-secret.yml
 ----
-[listing]
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
 ----
 apiVersion: v1
 kind: Secret
@@ -170,18 +191,21 @@ stringData:
 
 Add the secret to the ROSA cluster.
 
-[source, bash]
+[source,bash,role=execute,subs="attributes"]
 ----
 oc apply -f svm-secret.yml
 ----
 
 Verify the secret has been added to the ROSA cluster.
 
-[source,bash]
+[.lines_space]
+[.console-input]
+[source,bash,role=execute,subs="attributes"]
 ----
-oc get secrets -n trident | awk '/NAME|backend-fsx-ontap-nas-secret/'
+oc get secrets -n trident backend-fsx-ontap-nas-secret
 ----
-[listing]
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
 ----
 NAME                                 TYPE                                  DATA   AGE
 backend-fsx-ontap-nas-secret         Opaque                                2      24h
@@ -201,21 +225,22 @@ backend-fsx-ontap-nas-secret         Opaque                                2    
 
 Assign the IP from the SVM to a variable.
 
-[source,bash]
+[source,bash,role=execute,subs="attributes"]
 ----
 export SVMIP=$(aws fsx describe-storage-virtual-machines | jq -r '.StorageVirtualMachines[].Endpoints.Management.IpAddresses[]') && echo $SVMIP
 ----
 
 And then update `backend-ontap-nas.yml` with the IP.
 
-[source,bash]
+[source,bash,role=execute,subs="attributes"]
 ----
+curl -L -O {git_repo_raw}fsx/backend-ontap-nas.yml
 sed -i "s/<<management-ip>>/$SVMIP/g" backend-ontap-nas.yml
 ----
 
 Review the contents of the file.
 
-[source,bash]
+[source,bash,role=execute,subs="attributes"]
 ----
 cat backend-ontap-nas.yml
 ----
@@ -241,14 +266,14 @@ spec:
 
 Next, execute the following commands to create the Trident backend in the ROSA cluster.
 
-[source,shell]
+[source,bash,role=execute,subs="attributes"]
 ----
 oc apply -f backend-ontap-nas.yml
 ----
 
 Verify the backend configuration.
 
-[source,shell]
+[source,bash,role=execute,subs="attributes"]
 ----
 oc get tbc -n trident
 ----
@@ -267,7 +292,7 @@ backend-fsx-ontap-nas   fsx-ontap      1f490bf3-492c-4ef7-899e-9e7d8711c82f   Bo
 
 === Create the new `trident-csi` storage class.
 
-[source,shell]
+[source,bash,role=execute,subs="attributes"]
 ----
 oc apply -f storage-class-csi-nas.yml
 ----

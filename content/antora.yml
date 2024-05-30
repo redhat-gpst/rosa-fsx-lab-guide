@@ -6,6 +6,13 @@ nav:
 
 asciidoc:
   attributes:
+    page-pagination: true
+
+    # for content
+    git_repo_raw: https://raw.githubusercontent.com/openshift-examples/rosa-fsx-lab-guide/main/
+    git_repo: https://github.com/openshift-examples/rosa-fsx-lab-guide
+
+    # For Developemnt, please remove.
     aws_access_key_id: dummyaccesskey
     aws_default_region: us-east-2
     aws_route53_domain: .sandbox2651.opentlc.com

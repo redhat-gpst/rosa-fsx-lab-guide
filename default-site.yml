@@ -1,7 +1,7 @@
 ---
 site:
-  title: Cloud Native Robotz Hackathon
-  url: https://redhat-scholars.github.io/course-template
+  title: ROSA FSx Workshop
+  url: https://github.com/openshift-examples/rosa-fsx-lab-guide
   start_page: modules::index.adoc
 
 content:
@@ -34,8 +34,8 @@ runtime:
 output:
   dir: ./www
 
-antora:
-  extensions:
-    - id: dev-mode
-      require: ./content/lib/dev-mode.js
-      enabled: true
+# antora:
+#   extensions:
+#     - id: dev-mode
+#       require: ./content/lib/dev-mode.js
+#       enabled: true

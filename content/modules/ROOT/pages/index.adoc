@@ -28,25 +28,23 @@ The bastion provided with the RHDP workshop has the `aws` and `rosa` command lin
 
 To authenticate `oc` use the API URL, username, and password provided by the RHDP lab deployment.
 
-Replace the URL and password with your own. Remember this is senstive data, so do not share with anyone.
-
 [source,bash,role=execute,subs="attributes"]
 ----
 oc login {rosa_api_url} -u {rosa_admin_user} -p {rosa_admin_password}
 ----
 
-=== Git Clone the Lab Repo
+=== Git clone the lab repo
 
 Clone the Git repository:
 
-[source,bash]
+[source,bash,role=execute,subs="attributes"]
 ----
-git clone https://github.com/redhat-gpst/rosa-fsx-lab-guide.git rosa-fsx
+git clone {git_repo} rosa-fsx
 ----
 
 `cd` into the rosa-fsx/fsx directory. This will be the main working directory for the lab.
 
-[source,shell]
+[source,bash,role=execute,subs="attributes"]
 ----
 cd ~/rosa-fsx/fsx
 ----
