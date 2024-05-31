@@ -9,7 +9,7 @@ asciidoc:
     page-pagination: true
 
     # for content
-    git_repo_raw: https://raw.githubusercontent.com/openshift-examples/rosa-fsx-lab-guide/main/
+    # git_repo_raw: https://raw.githubusercontent.com/openshift-examples/rosa-fsx-lab-guide/main/
     git_repo: https://github.com/openshift-examples/rosa-fsx-lab-guide
 
     # For Developemnt, please remove.

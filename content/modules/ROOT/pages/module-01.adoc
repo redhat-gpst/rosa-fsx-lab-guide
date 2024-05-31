@@ -33,9 +33,9 @@ Output from commands will be showin in a box like below.
 +----------------+----------------------------+-------------------------+
 |    CidrBlock   |         SubnetId           |          VpcId          |
 +----------------+----------------------------+-------------------------+
-|  10.0.0.0/17   |  subnet-0c1e3b083f692a17f  |  vpc-0994809fd6f55252b  |
+|  10.0.0.0/18   |  subnet-0c1e3b083f692a17f  |  vpc-0994809fd6f55252b  |
 |  192.168.0.0/24|  subnet-01b8fa59d97657eca  |  vpc-0a4106cf5b3b895b5  |
-|  10.0.128.0/17 |  subnet-0299fe13ba470aa9f  |  vpc-0994809fd6f55252b  |
+|  10.0.128.0/18 |  subnet-0299fe13ba470aa9f  |  vpc-0994809fd6f55252b  |
 +----------------+----------------------------+-------------------------+
 ----
 
@@ -43,7 +43,7 @@ Run the following command to assign the SubnetId to the SUBNETID variable.
 
 [source,bash,role=execute,subs="attributes"]
 ----
-export SUBNETID=$(aws ec2 describe-subnets --query 'Subnets[?CidrBlock==`10.0.0.0/17`].SubnetId' \
+export SUBNETID=$(aws ec2 describe-subnets --query 'Subnets[?CidrBlock==`10.0.0.0/18`].SubnetId' \
    --output json | jq -r '.[0]') && echo $SUBNETID
 ----
 
@@ -51,7 +51,7 @@ Assign the VpcId to the VPCID variable.
 
 [source,bash,role=execute,subs="attributes"]
 ----
-export VPCID=$(aws ec2 describe-subnets --query 'Subnets[?CidrBlock==`10.0.0.0/17`].VpcId' \
+export VPCID=$(aws ec2 describe-subnets --query 'Subnets[?CidrBlock==`10.0.0.0/18`].VpcId' \
    --output json | jq -r '.[0]') && echo $VPCID
 ----
 
@@ -88,13 +88,13 @@ You can monitor the progress with the following command. You may have to run it 
 [.console-input]
 [source,bash,role=execute,subs="attributes"]
 ----
-aws cloudformation describe-stacks --stack ROSA-FSXONTAP | grep 'StackStatus'
+aws cloudformation describe-stacks --stack ROSA-FSXONTAP | jq -r '.Stacks[] | select(.StackName=="ROSA-FSXONTAP") | .StackStatus'
 ----
 
 [.console-output]
 [source,bash,subs="+macros,+attributes"]
 ----
-"StackStatus": "CREATE_IN_PROGRESS",
+CREATE_IN_PROGRESS
 ----
 
 Once the stack is ready, you will se the `CREATE_COMPLETE` status
@@ -102,19 +102,68 @@ Once the stack is ready, you will se the `CREATE_COMPLETE` status
 [.console-output]
 [source,bash,subs="+macros,+attributes"]
 ----
-"StackStatus": "CREATE_COMPLETE",
+CREATE_IN_PROGRESS
 ----
 
 Verify your file system and storage virtual machine (SVM1) have been created.
 
+[.lines_space]
+[.console-input]
 [source,bash,role=execute,subs="attributes"]
 ----
 aws fsx describe-file-systems
 ----
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
+----
+{
+    "FileSystems": [
+        {
+            "OwnerId": "760156770233",
+            "CreationTime": "2024-05-31T10:28:50.754000+00:00",
+            "FileSystemId": "fs-0dd8fac60f4d9d0e5",
+            "FileSystemType": "ONTAP",
+            "Lifecycle": "AVAILABLE",
+            "StorageCapacity": 1024,
+            "StorageType": "SSD",
+...
+----
 
+[.lines_space]
+[.console-input]
 [source,bash,role=execute,subs="attributes"]
 ----
 aws fsx describe-storage-virtual-machines
+----
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
+----
+{
+    "StorageVirtualMachines": [
+        {
+            "CreationTime": "2024-05-31T10:30:51.208000+00:00",
+            "Endpoints": {
+                "Iscsi": {
+                    "DNSName": "iscsi.svm-0ffc7291efcc7ff99.fs-0dd8fac60f4d9d0e5.fsx.eu-west-1.amazonaws.com",
+                    "IpAddresses": [
+                        "10.0.2.48",
+                        "10.0.34.116"
+                    ]
+                },
+                "Management": {
+                    "DNSName": "svm-0ffc7291efcc7ff99.fs-0dd8fac60f4d9d0e5.fsx.eu-west-1.amazonaws.com",
+                    "IpAddresses": [
+                        "10.0.46.136"
+                    ]
+                },
+                "Nfs": {
+                    "DNSName": "svm-0ffc7291efcc7ff99.fs-0dd8fac60f4d9d0e5.fsx.eu-west-1.amazonaws.com",
+                    "IpAddresses": [
+                        "10.0.46.136"
+                    ]
+                }
+            },
+...
 ----
 
 
@@ -137,12 +186,40 @@ helm repo add netapp-trident https://netapp.github.io/trident-helm-chart
 
 Use `helm install` to install the Trident driver in the `trident` namespace. You may see a warning about Pod Security. It can be ignored.
 
+[.lines_space]
+[.console-input]
 [source,bash,role=execute,subs="attributes"]
 ----
-helm install trident netapp-trident/trident-operator --version 24.02 --create-namespace --namespace trident
+helm install trident netapp-trident/trident-operator --create-namespace --namespace trident
 ----
 
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
+----
+NAME: trident
+LAST DEPLOYED: Fri May 31 15:12:00 2024
+NAMESPACE: trident
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Thank you for installing trident-operator, which will deploy and manage NetApp's Trident CSI
+storage provisioner for Kubernetes.
+
+Your release is named 'trident' and is installed into the 'trident' namespace.
+Please note that there must be only one instance of Trident (and trident-operator) in a Kubernetes cluster.
+
+To configure Trident to manage storage resources, you will need a copy of tridentctl, which is
+available in pre-packaged Trident releases.  You may find all Trident releases and source code
+online at https://github.com/NetApp/trident.
+
+To learn more about the release, try:
+
+  $ helm status trident
+  $ helm get all trident
+
 Verify the Trident driver installation.
+----
 
 [.lines_space]
 [.console-input]
@@ -172,7 +249,7 @@ NOTE: Be sure to inspect any files before applying them.
 [.console-input]
 [source,bash,role=execute,subs="attributes"]
 ----
-curl -L -O {git_repo_raw}fsx/svm-secret.yml
+cd ~/rosa-fsx/fsx
 cat svm-secret.yml
 ----
 [.console-output]
@@ -232,9 +309,10 @@ export SVMIP=$(aws fsx describe-storage-virtual-machines | jq -r '.StorageVirtua
 
 And then update `backend-ontap-nas.yml` with the IP.
 
-[source,bash,role=execute,subs="attributes"]
+[.lines_space]
+[.console-input]
+[source,bash,role=execute]
 ----
-curl -L -O {git_repo_raw}fsx/backend-ontap-nas.yml
 sed -i "s/<<management-ip>>/$SVMIP/g" backend-ontap-nas.yml
 ----
 
@@ -246,7 +324,9 @@ cat backend-ontap-nas.yml
 ----
 
 Example:
-[listing]
+[.lines_space]
+[.console-output]
+[source,yaml]
 ----
 apiVersion: trident.netapp.io/v1
 kind: TridentBackendConfig
@@ -277,7 +357,9 @@ Verify the backend configuration.
 ----
 oc get tbc -n trident
 ----
-[listing]
+[.lines_space]
+[.console-output]
+[source,bash]
 ----
 NAME                    BACKEND NAME   BACKEND UUID                           PHASE   STATUS
 backend-fsx-ontap-nas   fsx-ontap      1f490bf3-492c-4ef7-899e-9e7d8711c82f   Bound   Success
@@ -299,11 +381,15 @@ oc apply -f storage-class-csi-nas.yml
 
 Verify the status of the trident-csi storage class creation.
 
-[source,shell]
+[.lines_space]
+[.console-input]
+[source,bash,role=execute,subs="attributes"]
 ----
-oc get sc | awk '/NAME|trident-csi/'
+oc get storageclass trident-csi
 ----
-[listing]
+[.lines_space]
+[.console-output]
+[source,bash]
 ----
 NAME            PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
 trident-csi     csi.trident.netapp.io   Retain          Immediate              true                   1h58m
