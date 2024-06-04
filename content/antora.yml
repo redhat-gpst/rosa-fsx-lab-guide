@@ -1,6 +1,6 @@
 name: modules
 title: Lab guide
-version: stable
+version: ~
 nav:
   - modules/ROOT/nav.adoc
 

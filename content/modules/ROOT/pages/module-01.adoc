@@ -102,7 +102,7 @@ Once the stack is ready, you will se the `CREATE_COMPLETE` status
 [.console-output]
 [source,bash,subs="+macros,+attributes"]
 ----
-CREATE_IN_PROGRESS
+CREATE_COMPLETE
 ----
 
 Verify your file system and storage virtual machine (SVM1) have been created.
@@ -238,6 +238,21 @@ REVISION: 1
 TEST SUITE: None
 ----
 
+Helm deployes the Astra Trident Operator, to verify the Operator status:
+
+
+[.lines_space]
+[.console-input]
+[source,bash,role=execute,subs="attributes"]
+----
+oc get tridentorchestrators -n trident -oyaml | grep "status: " -A 1
+----
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
+----
+    status: Installed
+    version: v24.02.0
+----
 
 === Create a secret to store the SVM username and password in the ROSA cluster
 
@@ -355,7 +370,7 @@ Verify the backend configuration.
 
 [source,bash,role=execute,subs="attributes"]
 ----
-oc get tbc -n trident
+oc get tridentbackendconfigs -n trident
 ----
 [.lines_space]
 [.console-output]

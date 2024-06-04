@@ -71,7 +71,7 @@ Verify the pvc's are created by the MySQL application.
 [.console-input]
 [source,bash,role=execute,subs="attributes"]
 ----
-oc get pvc
+oc get persistentvolumeclaims
 ----
 
 [.console-output]
@@ -156,6 +156,13 @@ Review the content of `mysql-client.yml` and then deploy the MySQL client using 
 ----
 oc apply -f mysql-client.yml
 ----
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
+----
+Warning: would violate PodSecurity "restricted:v1.24": allowPrivilegeEscalation != false (container "mysql-container" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "mysql-container" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "mysql-container" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "mysql-container" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+pod/mysql-client created
+----
+
 
 Verify the pod status.
 
@@ -401,7 +408,9 @@ We can now check that our data has been restored.
 ----
 oc rsh mysql-client
 ----
-[source,bash]
+[.lines_space]
+[.console-input]
+[source,bash,role=execute,subs="attributes"]
 ----
 mysql -u root --password=password -h mysql.mysql.svc.cluster.local
 ----

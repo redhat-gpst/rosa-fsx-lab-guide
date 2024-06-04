@@ -7,17 +7,15 @@ This lab guide provides a walkthrough on using FSx for ONTAP as a persistent sto
 
 NOTE: This lab guide assumes you are using the RHDP environment and are logged into the bastion.
 
-
-. <<lab-setup,Lab Setup>>
-. <<provision-fsx-for-ontap,Provision FSx for ONTAP>>
-. <<config-trident,Install and Configure the Trident CSI driver for ROSA>>
-. <<csi-backend,Install and Configure the Trident CSI backend to FSx for ONTAP>>
-. <<storage-class,Create storage class in ROSA cluster>>
-. <<deploy-mysql,Deploy MySQL stateful application>>
-. <<creating-snapshots,Creating Snapshots>>
-. <<data-recovery,Data Recovery>>
-. <<validation,Validate the Database was Restored>>
-
+. Lab Setup
+. Provision FSx for ONTAP
+. Install and Configure the Trident CSI driver for ROSA
+. Install and Configure the Trident CSI backend to FSx for ONTAP
+. Create storage class in ROSA cluster
+. Deploy MySQL stateful application
+. Creating Snapshots
+. Data Recovery
+. Validate the Database was Restored
 
 [[lab-setup]]
 == Lab Setup
