@@ -1,6 +1,8 @@
 
 # Storage configuration
 
+ifndef::ocp4_workload_rosa_fsx_deployed[]
+
 [#prov-fsx-ontab]
 == Provision FSx for ONTAP  [[provision-fsx]]
 
@@ -55,6 +57,7 @@ export VPCID=$(aws ec2 describe-subnets --query 'Subnets[?CidrBlock==`10.0.0.0/1
    --output json | jq -r '.[0]') && echo $VPCID
 ----
 
+
 === Create the FSx stack
 
 IMPORTANT: This step is option, please ask your instructor
@@ -104,6 +107,42 @@ Once the stack is ready, you will se the `CREATE_COMPLETE` status
 ----
 CREATE_COMPLETE
 ----
+
+endif::[]
+
+ifdef::ocp4_workload_rosa_fsx_deployed[]
+
+== Pre-Provisioned FSx for ONTAP  [[provision-fsx]]
+
+* FSx for NetApp ONTAP provides fully managed shared storage with features like snapshots, cloning, and data tiering.
+* It's integrated with AWS, allowing for seamless cloud storage solutions.
+
+Due to time constraints, FSx for ONTAP has already been deployed.
+
+Please check if FSx stack is completely deployed
+
+[.lines_space]
+[.console-input]
+[source,bash,role=execute,subs="attributes"]
+----
+aws cloudformation describe-stacks --stack ROSA-FSXONTAP | jq -r '.Stacks[] | select(.StackName=="ROSA-FSXONTAP") | .StackStatus'
+----
+
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
+----
+CREATE_IN_PROGRESS
+----
+
+Once the stack is ready, you will se the `CREATE_COMPLETE` status
+
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
+----
+CREATE_COMPLETE
+----
+
+endif::[]
 
 Verify your file system and storage virtual machine (SVM1) have been created.
 
