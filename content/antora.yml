@@ -1,0 +1,48 @@
+name: modules
+title: Lab guide
+version: ~
+nav:
+  - modules/ROOT/nav.adoc
+
+asciidoc:
+  attributes:
+    page-pagination: true
+
+    # for content
+    # git_repo_raw: https://raw.githubusercontent.com/openshift-examples/rosa-fsx-lab-guide/main/
+    git_repo: https://github.com/openshift-examples/rosa-fsx-lab-guide
+
+    # For Developemnt, please remove.
+    aws_access_key_id: dummyaccesskey
+    aws_default_region: us-east-2
+    aws_route53_domain: .sandbox2651.opentlc.com
+    aws_secret_access_key: dummysecretaccesskey
+    aws_web_console_password: password
+    aws_web_console_url: https://588618638711.signin.aws.amazon.com/console
+    aws_web_console_user_name: rbohne@redhat.com-lfw97-admin
+    guid: lfw97
+    rosa_admin_password: GcJf7-te22D-6FUTL-TtktJ
+    rosa_admin_user: cluster-admin
+    rosa_api_url: https://api.rosa-lfw97.ucyy.p1.openshiftapps.com:6443
+    rosa_bastion_user_name: rosa
+    rosa_console_password: l9GWMx2wSONS
+    rosa_console_url: https://console-openshift-console.apps.rosa-lfw97.ucyy.p1.openshiftapps.com
+    rosa_console_user_name: rbohne@redhat.com-lfw97
+    rosa_deploy_hcp: "false"
+    rosa_ocp_cli_version: 4.14.24
+    rosa_sandbox_account_id: "588618638711"
+    rosa_subdomain_base: lfw97.sandbox2651.opentlc.com
+    rosa_token_warning: "true"
+    rosa_user_password: tFyEo7dubGOj
+    rosa_version: ""
+    rosa_version_next: none
+    showroom_host: bastion.lfw97.sandbox2651.opentlc.com
+    showroom_primary_view_url: https://bastion.lfw97.sandbox2651.opentlc.com:443/showroom/
+    ssh_command: ssh rosa@bastion.lfw97.sandbox2651.opentlc.com
+    ssh_password: tFyEo7dubGOj
+    ssh_username: rosa
+    targethost: bastion.lfw97.sandbox2651.opentlc.com
+
+  extensions:
+    - ./content/lib/tab-block.js
+    - ./content/lib/remote-include-processor.js

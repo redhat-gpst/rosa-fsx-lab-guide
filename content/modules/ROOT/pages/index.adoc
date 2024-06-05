@@ -1,0 +1,48 @@
+:rosa_api_url: {rosa_api_url}
+
+= ROSA FSx Workshop
+:numbered:
+
+This lab guide provides a walkthrough on using FSx for ONTAP as a persistent storage layer for applications on *Red Hat OpenShift Service on AWS* (ROSA). It will guide you through the steps to install the NetApp Trident Container Storage Interface (CSI) driver on a ROSA cluster. Additionally, you will learn how to provision an FSx for ONTAP file system, deploy a sample stateful application. To ensure your data’s resilience, you learn how to backup and restore your application data.
+
+NOTE: This lab guide assumes you are using the RHDP environment and are logged into the bastion.
+
+. Lab Setup
+. Provision FSx for ONTAP
+. Install and Configure the Trident CSI driver for ROSA
+. Install and Configure the Trident CSI backend to FSx for ONTAP
+. Create storage class in ROSA cluster
+. Deploy MySQL stateful application
+. Creating Snapshots
+. Data Recovery
+. Validate the Database was Restored
+
+[[lab-setup]]
+== Lab Setup
+
+=== Authenticate `oc` to the cluster
+
+The bastion provided with the RHDP workshop has the `aws` and `rosa` command line tools already installed and logged in.  The `oc` command is installed, but not authenticated.
+
+To authenticate `oc` use the API URL, username, and password provided by the RHDP lab deployment.
+
+[source,bash,role=execute,subs="attributes"]
+----
+oc login {rosa_api_url} -u {rosa_admin_user} -p {rosa_admin_password}
+----
+
+=== Git clone the lab repo
+
+Clone the Git repository:
+
+[source,bash,role=execute,subs="attributes"]
+----
+git clone {git_repo} rosa-fsx
+----
+
+`cd` into the rosa-fsx/fsx directory. This will be the main working directory for the lab.
+
+[source,bash,role=execute,subs="attributes"]
+----
+cd ~/rosa-fsx/fsx
+----

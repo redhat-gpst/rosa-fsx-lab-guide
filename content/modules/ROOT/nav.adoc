@@ -1,0 +1,18 @@
+
+
+* xref:module-01.adoc[Storage Deployment & Configuration]
+
+** xref:module-01.adoc#prov-fsx-ontab[Provision FSx for ONTAP]
+** xref:module-01.adoc#trident-rosa[Install and Configure the Trident CSI driver for ROSA]
+
+** xref:module-01.adoc#trident-ontap[Install and Configure the Trident CSI backend to FSx for ONTAP]
+
+** xref:module-01.adoc#storageclass[Create storage class in ROSA cluster]
+
+
+* xref:module-02.adoc[Deploy stateful applicaiton]
+** xref:module-02.adoc#deploy[Deploy MySQL stateful application]
+** xref:module-02.adoc#create-snapshot[Creating Snapshots]
+** xref:module-02.adoc#recovery[Data Recovery]
+** xref:module-02.adoc#validate[Validate the Database was Restored]
+
