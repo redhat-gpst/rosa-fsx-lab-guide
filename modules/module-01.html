@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Storage configuration :: ROSA FSx Workshop</title>
+    <link rel="canonical" href="https://github.com/redhat-gpst/rosa-fsx-lab-guide/modules/module-01.html">
+    <link rel="prev" href="index.html">
+    <link rel="next" href="module-02.html">
+    <meta name="generator" content="Antora 3.1.7">
+    <link rel="stylesheet" href="../_/css/site.css">
+<link rel="icon" href="../_/img/favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://demo.redhat.com" target="_blank">
+        <img src="../_/img/rhdp-logo.svg" height="35px" alt="Red Hat Demo Platform">
+      </a>
+      <a class="navbar-item" href="https://github.com/redhat-gpst/rosa-fsx-lab-guide">ROSA FSx Workshop</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link" href="#">Help</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" target="_blank" href="https://redhat.service-now.com/help?id=sc_cat_item&sys_id=00c0316a1bf39450e43942a7bc4bcbd1">Open Support Case</a>
+            <a class="navbar-item" target="_blank" href="https://rhdp.statuspage.io/">Status Page</a>
+            <a class="navbar-item" target="_blank" href="https://demo.redhat.com/support">Solution Support: Service Level</a>
+            <a class="navbar-item" target="_blank" href="https://content.redhat.com/us/en/product/cross-portfolio-initiatives/rhdp.html">Learn more</a>
+            <a class="navbar-item" target="_blank" href="https://videos.learning.redhat.com/channel/RHPDS%2B-%2BRed%2BHat%2BProduct%2Band%2BPortfolio%2BDemo%2BSystem/277722533">How to videos</a>
+          </div>
+        </div>
+        <a class="navbar-item" target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSfwGW7ql2lDfaLDpg4Bgj_puFEVsM0El6-Nz8fyH48RnGLDrA/viewform">Feedback</a>
+        <a class="navbar-item" href="https://developers.redhat.com/events/" target="_blank">Upcoming Events</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="modules" data-version="">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="index.html" class=" query-params-link">Lab guide</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item is-current-page" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="module-01.html">Storage Deployment &amp; Configuration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#prov-fsx-ontab">Provision FSx for ONTAP</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#trident-rosa">Install and Configure the Trident CSI driver for ROSA</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#trident-ontap">Install and Configure the Trident CSI backend to FSx for ONTAP</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#storageclass">Create storage class in ROSA cluster</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="module-02.html">Deploy stateful applicaiton</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="module-02.html#deploy">Deploy MySQL stateful application</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="module-02.html#create-snapshot">Creating Snapshots</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="module-02.html#recovery">Data Recovery</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="module-02.html#validate">Validate the Database was Restored</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Lab guide</span>
+    <span class="version">default</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <span class="title">Lab guide</span>
+      <ul class="versions">
+        <li class="version is-current">
+          <a href="index.html">default</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="index.html">Lab guide</a></li>
+    <li><a href="module-01.html">Storage Deployment &amp; Configuration</a></li>
+  </ul>
+</nav>
+  <div class="edit-this-page"><a href="https://github.com/redhat-gpst/rosa-fsx-lab-guide/edit/main/content/modules/ROOT/pages/module-01.adoc">Edit this Page</a></div>
+  </div>
+  <div class="content">
+<article class="doc">
+<h1 class="page">Storage configuration</h1>
+<div class="sect1">
+<h2 id="prov-fsx-ontab"><a class="anchor" href="#prov-fsx-ontab"></a>Provision FSx for ONTAP  <a id="provision-fsx"></a></h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>FSx for NetApp ONTAP provides fully managed shared storage with features like snapshots, cloning, and data tiering.</p>
+</li>
+<li>
+<p>It&#8217;s integrated with AWS, allowing for seamless cloud storage solutions.</p>
+</li>
+<li>
+<p>In this step, you&#8217;re setting up the FSx for ONTAP file system which will be used as the backend storage for your OpenShift applications.</p>
+</li>
+<li>
+<p>We will create a single-AZ FSx for ONTAP file system in the same VPC as the ROSA cluster.</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_get_subnet_and_vpc_ids"><a class="anchor" href="#_get_subnet_and_vpc_ids"></a>Get Subnet and VPC IDs</h3>
+<div class="paragraph">
+<p>Let&#8217;s take a look at the VPC subnets.</p>
+</div>
+<div class="paragraph">
+<p>From the bastion, run the following command.</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">aws ec2 describe-subnets --query 'Subnets[*].{SubnetId:SubnetId,VpcId:VpcId,CidrBlock:CidrBlock}' \
+   --output table</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Output from commands will be showin in a box like below.</p>
+</div>
+<div class="listingblock console-output">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">-------------------------------------------------------------------------
+|                             DescribeSubnets                           |
+---------------------------------------------------------------------
+|    CidrBlock   |         SubnetId           |          VpcId          |
+---------------------------------------------------------------------
+|  10.0.0.0/18   |  subnet-0c1e3b083f692a17f  |  vpc-0994809fd6f55252b  |
+|  192.168.0.0/24|  subnet-01b8fa59d97657eca  |  vpc-0a4106cf5b3b895b5  |
+|  10.0.128.0/18 |  subnet-0299fe13ba470aa9f  |  vpc-0994809fd6f55252b  |
+---------------------------------------------------------------------</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Run the following command to assign the SubnetId to the SUBNETID variable.</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">export SUBNETID=$(aws ec2 describe-subnets --query 'Subnets[?CidrBlock==`10.0.0.0/18`].SubnetId' \
+   --output json | jq -r '.[0]') && echo $SUBNETID</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Assign the VpcId to the VPCID variable.</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">export VPCID=$(aws ec2 describe-subnets --query 'Subnets[?CidrBlock==`10.0.0.0/18`].VpcId' \
+   --output json | jq -r '.[0]') && echo $VPCID</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_create_the_fsx_stack"><a class="anchor" href="#_create_the_fsx_stack"></a>Create the FSx stack</h3>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+This step is option, please ask your instructor
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Create the stack</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This can take 20 - 30 minutes
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">aws cloudformation create-stack \
+  --stack-name ROSA-FSXONTAP \
+  --template-body file://./FSxONTAP.yml \
+  --region us-east-2 \
+  --parameters \
+     ParameterKey=Subnet1ID,ParameterValue=$SUBNETID \
+     ParameterKey=myVpc,ParameterValue=$VPCID \
+     ParameterKey=FileSystemName,ParameterValue=ROSA-myFSxONTAP \
+     ParameterKey=ThroughputCapacity,ParameterValue=512 \
+     ParameterKey=FSxAllowedCIDR,ParameterValue=10.0.0.0/16 \
+     ParameterKey=FsxAdminPassword,ParameterValue=Rosa12345 \
+     ParameterKey=SvmAdminPassword,ParameterValue=Rosa12345 \
+  --capabilities CAPABILITY_NAMED_IAM</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can monitor the progress with the following command. You may have to run it a few times before the stack is fully configured.</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">aws cloudformation describe-stacks --stack ROSA-FSXONTAP | jq -r '.Stacks[] | select(.StackName=="ROSA-FSXONTAP") | .StackStatus'</code></pre>
+</div>
+</div>
+<div class="listingblock console-output">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">CREATE_IN_PROGRESS</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Once the stack is ready, you will se the <code>CREATE_COMPLETE</code> status</p>
+</div>
+<div class="listingblock console-output">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">CREATE_COMPLETE</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify your file system and storage virtual machine (SVM1) have been created.</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">aws fsx describe-file-systems</code></pre>
+</div>
+</div>
+<div class="listingblock console-output">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">{
+    "FileSystems": [
+        {
+            "OwnerId": "760156770233",
+            "CreationTime": "2024-05-31T10:28:50.754000+00:00",
+            "FileSystemId": "fs-0dd8fac60f4d9d0e5",
+            "FileSystemType": "ONTAP",
+            "Lifecycle": "AVAILABLE",
+            "StorageCapacity": 1024,
+            "StorageType": "SSD",
+...</code></pre>
+</div>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">aws fsx describe-storage-virtual-machines</code></pre>
+</div>
+</div>
+<div class="listingblock console-output">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">{
+    "StorageVirtualMachines": [
+        {
+            "CreationTime": "2024-05-31T10:30:51.208000+00:00",
+            "Endpoints": {
+                "Iscsi": {
+                    "DNSName": "iscsi.svm-0ffc7291efcc7ff99.fs-0dd8fac60f4d9d0e5.fsx.eu-west-1.amazonaws.com",
+                    "IpAddresses": [
+                        "10.0.2.48",
+                        "10.0.34.116"
+                    ]
+                },
+                "Management": {
+                    "DNSName": "svm-0ffc7291efcc7ff99.fs-0dd8fac60f4d9d0e5.fsx.eu-west-1.amazonaws.com",
+                    "IpAddresses": [
+                        "10.0.46.136"
+                    ]
+                },
+                "Nfs": {
+                    "DNSName": "svm-0ffc7291efcc7ff99.fs-0dd8fac60f4d9d0e5.fsx.eu-west-1.amazonaws.com",
+                    "IpAddresses": [
+                        "10.0.46.136"
+                    ]
+                }
+            },
+...</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="trident-rosa"><a class="anchor" href="#trident-rosa"></a>Install and Configure the Trident CSI driver for ROSA</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Trident is NetApp&#8217;s dynamic storage orchestrator for OpenShift.</p>
+</li>
+<li>
+<p>It automates and manages storage resources for containers.</p>
+</li>
+<li>
+<p>By installing Trident, you&#8217;re enabling your ROSA cluster to dynamically provision and manage storage resources on FSx for ONTAP, providing a robust and scalable storage solution for your applications.</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_install_trident"><a class="anchor" href="#_install_trident"></a>Install Trident</h3>
+<div class="paragraph">
+<p>To begin, add the Astra Trident Helm repository</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">helm repo add netapp-trident https://netapp.github.io/trident-helm-chart</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Use <code>helm install</code> to install the Trident driver in the <code>trident</code> namespace. You may see a warning about Pod Security. It can be ignored.</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">helm install trident netapp-trident/trident-operator --create-namespace --namespace trident</code></pre>
+</div>
+</div>
+<div class="listingblock console-output">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">NAME: trident
+LAST DEPLOYED: Fri May 31 15:12:00 2024
+NAMESPACE: trident
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Thank you for installing trident-operator, which will deploy and manage NetApp's Trident CSI
+storage provisioner for Kubernetes.
+
+Your release is named 'trident' and is installed into the 'trident' namespace.
+Please note that there must be only one instance of Trident (and trident-operator) in a Kubernetes cluster.
+
+To configure Trident to manage storage resources, you will need a copy of tridentctl, which is
+available in pre-packaged Trident releases.  You may find all Trident releases and source code
+online at <a href="https://github.com/NetApp/trident" class="bare">https://github.com/NetApp/trident</a>.
+
+To learn more about the release, try:
+
+  $ helm status trident
+  $ helm get all trident
+
+Verify the Trident driver installation.</code></pre>
+</div>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">helm status trident -n trident | grep "NAME:" -A 5</code></pre>
+</div>
+</div>
+<div class="listingblock console-output">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">NAME: trident
+LAST DEPLOYED: Mon Nov  6 20:52:31 2023
+NAMESPACE: trident
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Helm deployes the Astra Trident Operator, to verify the Operator status:</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get tridentorchestrators -n trident -oyaml | grep "status: " -A 1</code></pre>
+</div>
+</div>
+<div class="listingblock console-output">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">    status: Installed
+    version: v24.02.0</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_create_a_secret_to_store_the_svm_username_and_password_in_the_rosa_cluster"><a class="anchor" href="#_create_a_secret_to_store_the_svm_username_and_password_in_the_rosa_cluster"></a>Create a secret to store the SVM username and password in the ROSA cluster</h3>
+<div class="paragraph">
+<p>Download and view the <code>svm-secret.yml</code> file. Take note of the password.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Be sure to inspect any files before applying them.
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cd ~/rosa-fsx/fsx
+cat svm-secret.yml</code></pre>
+</div>
+</div>
+<div class="listingblock console-output">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">apiVersion: v1
+kind: Secret
+metadata:
+  name: backend-fsx-ontap-nas-secret
+  namespace: trident
+type: Opaque
+stringData:
+  username: vsadmin
+  password: Rosa12345</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Add the secret to the ROSA cluster.</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc apply -f svm-secret.yml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify the secret has been added to the ROSA cluster.</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get secrets -n trident backend-fsx-ontap-nas-secret</code></pre>
+</div>
+</div>
+<div class="listingblock console-output">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">NAME                                 TYPE                                  DATA   AGE
+backend-fsx-ontap-nas-secret         Opaque                                2      24h</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="trident-ontap"><a class="anchor" href="#trident-ontap"></a>Install and Configure the Trident CSI Backend to FSx for ONTAP <a id="csi-backend"></a></h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>The Trident backend configuration tells Trident how to communicate with the storage system, in this case, FSx for ONTAP.</p>
+</li>
+<li>
+<p>We willl use the <code>ontap-nas</code> driver to provision storage volumes.</p>
+</li>
+<li>
+<p>We are going to edit <code>backend-ontap-nas.yml</code> so it has the IP from the ManagementLIF and DataLIF IP addresses of the FSx Server Virtual Mancine.</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_create_the_trident_backend"><a class="anchor" href="#_create_the_trident_backend"></a>Create the Trident Backend</h3>
+<div class="paragraph">
+<p>Assign the IP from the SVM to a variable.</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">export SVMIP=$(aws fsx describe-storage-virtual-machines | jq -r '.StorageVirtualMachines[].Endpoints.Management.IpAddresses[]') && echo $SVMIP</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And then update <code>backend-ontap-nas.yml</code> with the IP.</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">sed -i "s/&lt;&lt;management-ip&gt;&gt;/$SVMIP/g" backend-ontap-nas.yml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Review the contents of the file.</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cat backend-ontap-nas.yml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Example:</p>
+</div>
+<div class="listingblock lines_space console-output">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">apiVersion: trident.netapp.io/v1
+kind: TridentBackendConfig
+metadata:
+  name: backend-fsx-ontap-nas
+  namespace: trident
+spec:
+  version: 1
+  backendName: fsx-ontap
+  storageDriverName: ontap-nas
+  managementLIF: 10.0.50.139
+  dataLIF: 10.0.50.139
+  svm: SVM1
+  credentials:
+    name: backend-fsx-ontap-nas-secret</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Next, execute the following commands to create the Trident backend in the ROSA cluster.</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc apply -f backend-ontap-nas.yml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify the backend configuration.</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get tridentbackendconfigs -n trident</code></pre>
+</div>
+</div>
+<div class="listingblock lines_space console-output">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">NAME                    BACKEND NAME   BACKEND UUID                           PHASE   STATUS
+backend-fsx-ontap-nas   fsx-ontap      1f490bf3-492c-4ef7-899e-9e7d8711c82f   Bound   Success</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="storageclass"><a class="anchor" href="#storageclass"></a>Create storage class in ROSA cluster <a id="storage-class"></a></h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>A storage class defines how storage is dynamically provisioned, specifying attributes like size and performance.</p>
+</li>
+<li>
+<p>A storage class automates the creation of storage volumes when applications request storage through PVCs.</p>
+</li>
+<li>
+<p>This configures a storage class to work with Trident, ensuring efficient management of FSx for NetApp ONTAP as backend storage.</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_create_the_new_trident_csi_storage_class"><a class="anchor" href="#_create_the_new_trident_csi_storage_class"></a>Create the new <code>trident-csi</code> storage class.</h3>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc apply -f storage-class-csi-nas.yml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify the status of the trident-csi storage class creation.</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get storageclass trident-csi</code></pre>
+</div>
+</div>
+<div class="listingblock lines_space console-output">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">NAME            PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
+trident-csi     csi.trident.netapp.io   Retain          Immediate              true                   1h58m</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="index.html" class="query-params-link">Lab guide</a></span>
+  <span class="next"><a href="module-02.html" class="query-params-link">Deploy stateful applicaiton</a></span>
+</nav>
+</article>
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <a class="rhd-logo" href="https://developers.redhat.com" target="_blank"></div>
+</footer>
+<script src="../_/js/vendor/clipboard.js"></script>
+<script src="../_/js/site.js"></script>
+<script async src="../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Deploy stateful applicaiton :: ROSA FSx Workshop</title>
+    <link rel="canonical" href="https://github.com/redhat-gpst/rosa-fsx-lab-guide/modules/module-02.html">
+    <link rel="prev" href="module-01.html">
+    <meta name="generator" content="Antora 3.1.7">
+    <link rel="stylesheet" href="../_/css/site.css">
+<link rel="icon" href="../_/img/favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://demo.redhat.com" target="_blank">
+        <img src="../_/img/rhdp-logo.svg" height="35px" alt="Red Hat Demo Platform">
+      </a>
+      <a class="navbar-item" href="https://github.com/redhat-gpst/rosa-fsx-lab-guide">ROSA FSx Workshop</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link" href="#">Help</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" target="_blank" href="https://redhat.service-now.com/help?id=sc_cat_item&sys_id=00c0316a1bf39450e43942a7bc4bcbd1">Open Support Case</a>
+            <a class="navbar-item" target="_blank" href="https://rhdp.statuspage.io/">Status Page</a>
+            <a class="navbar-item" target="_blank" href="https://demo.redhat.com/support">Solution Support: Service Level</a>
+            <a class="navbar-item" target="_blank" href="https://content.redhat.com/us/en/product/cross-portfolio-initiatives/rhdp.html">Learn more</a>
+            <a class="navbar-item" target="_blank" href="https://videos.learning.redhat.com/channel/RHPDS%2B-%2BRed%2BHat%2BProduct%2Band%2BPortfolio%2BDemo%2BSystem/277722533">How to videos</a>
+          </div>
+        </div>
+        <a class="navbar-item" target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSfwGW7ql2lDfaLDpg4Bgj_puFEVsM0El6-Nz8fyH48RnGLDrA/viewform">Feedback</a>
+        <a class="navbar-item" href="https://developers.redhat.com/events/" target="_blank">Upcoming Events</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="modules" data-version="">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="index.html" class=" query-params-link">Lab guide</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="module-01.html">Storage Deployment &amp; Configuration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="module-01.html#prov-fsx-ontab">Provision FSx for ONTAP</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="module-01.html#trident-rosa">Install and Configure the Trident CSI driver for ROSA</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="module-01.html#trident-ontap">Install and Configure the Trident CSI backend to FSx for ONTAP</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="module-01.html#storageclass">Create storage class in ROSA cluster</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-current-page" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="module-02.html">Deploy stateful applicaiton</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#deploy">Deploy MySQL stateful application</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#create-snapshot">Creating Snapshots</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#recovery">Data Recovery</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#validate">Validate the Database was Restored</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Lab guide</span>
+    <span class="version">default</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <span class="title">Lab guide</span>
+      <ul class="versions">
+        <li class="version is-current">
+          <a href="index.html">default</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="index.html">Lab guide</a></li>
+    <li><a href="module-02.html">Deploy stateful applicaiton</a></li>
+  </ul>
+</nav>
+  <div class="edit-this-page"><a href="https://github.com/redhat-gpst/rosa-fsx-lab-guide/edit/main/content/modules/ROOT/pages/module-02.adoc">Edit this Page</a></div>
+  </div>
+  <div class="content">
+<article class="doc">
+<h1 class="page">Deploy stateful applicaiton</h1>
+<div class="sect1">
+<h2 id="deploy"><a class="anchor" href="#deploy"></a>Deploy MySQL stateful application <a id="deploy-mysql"></a></h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Stateful applications, like databases, need to maintain data across pod restarts.</p>
+</li>
+<li>
+<p>Using pvc&#8217;s, Trident ensures data persistence for these applications.</p>
+</li>
+<li>
+<p>Deploying MySQL as a sample stateful application gives a practical example of how Trident integrates with OpenShift to manage data for stateful applications, ensuring data is not lost when pods are moved or restarted.</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_setup_the_mysql_project"><a class="anchor" href="#_setup_the_mysql_project"></a>Setup the MySQL Project</h3>
+<div class="paragraph">
+<p>Before we create the MySQL application, we will creat a <code>mysql</code> project and store the application’s username and password in a Secret.</p>
+</div>
+<div class="paragraph">
+<p>Create the mysql namespace</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc create ns mysql</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We&#8217;ll use the <code>mysql</code> project as our default project</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc project mysql</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Create the mysql secret</p>
+</div>
+<div class="paragraph">
+<p><code>password</code> is the password but can be chagned in the <code>mysql-secret.yml</code> file</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc apply -f mysql-secret.yml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify the secret was created.</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get secrets mysql-password</code></pre>
+</div>
+</div>
+<div class="listingblock console-output">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">NAME                       TYPE                                  DATA   AGE
+mysql-password             opaque                                1      1h34m</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_create_a_pvc_for_the_mysql_application"><a class="anchor" href="#_create_a_pvc_for_the_mysql_application"></a>Create a pvc for the MySQL application</h3>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc apply -f mysql-pvc.yml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify the pvc&#8217;s are created by the MySQL application.</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get persistentvolumeclaims</code></pre>
+</div>
+</div>
+<div class="listingblock console-output">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">NAME          STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+mysql-volume  Bound    pvc-676d059c-1480-4e36-963e-2249efc70331   10Gi       RWO            trident-csi    4h4m</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_mysql_application_deployment"><a class="anchor" href="#_mysql_application_deployment"></a>MySQL Application Deployment</h3>
+<div class="paragraph">
+<p>Next we will deploy the MySQL application on the ROSA cluster.</p>
+</div>
+<div class="paragraph">
+<p>Open <code>mysql-deployment.yml</code> and review the details –metadata, replicas, and storageclass name.</p>
+</div>
+<div class="paragraph">
+<p>For simplicity in this lab, we are only going to create one (1) replica set.</p>
+</div>
+<div class="paragraph">
+<p>Execute the following command.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Ignore any warnings about PodSecurity
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc apply -f mysql-deployment.yml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify the application deployment.  It will take a minute for the container to start.</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get pods</code></pre>
+</div>
+</div>
+<div class="listingblock console-output">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">NAME                        READY   STATUS    RESTARTS   AGE
+mysql-fsx-7db4f45b8-mmfzv   1/1     Running   0          40s</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_create_a_service_for_the_mysql_application"><a class="anchor" href="#_create_a_service_for_the_mysql_application"></a>Create a service for the MySQL application</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>A OpenShift service acts as an internal load balancer. It provides a stable endpoint through which other pods within the cluster can access the MySQL application, regardless of the individual states of the MySQL pods.</p>
+</li>
+<li>
+<p>By specifying a service for MySQL, you provide a consistent internal address for the database, ensuring seamless communication even as pods are scaled or restarted.</p>
+</li>
+</ul>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc apply -f mysql-service.yml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify the service.</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get service</code></pre>
+</div>
+</div>
+<div class="listingblock console-output">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">NAME    TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)    AGE
+mysql   ClusterIP   None         &lt;none&gt;        3306/TCP   4h3m</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_create_mysql_client"><a class="anchor" href="#_create_mysql_client"></a>Create MySQL client</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>The MySQL client is used to access the MySQL application using the service we created.</p>
+</li>
+<li>
+<p>This provides a consistent entry point into the database.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Review the content of <code>mysql-client.yml</code> and then deploy the MySQL client using the following command.</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc apply -f mysql-client.yml</code></pre>
+</div>
+</div>
+<div class="listingblock console-output">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">Warning: would violate PodSecurity "restricted:v1.24": allowPrivilegeEscalation != false (container "mysql-container" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "mysql-container" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "mysql-container" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "mysql-container" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+pod/mysql-client created</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify the pod status.</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get pods</code></pre>
+</div>
+</div>
+<div class="listingblock console-output">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">NAME                         READY   STATUS    RESTARTS   AGE
+mysql-client                 1/1     Running   0          21s</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_create_a_sample_database"><a class="anchor" href="#_create_a_sample_database"></a>Create a sample database</h3>
+<div class="paragraph">
+<p>Log in to the MySQL client pod.</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc rsh mysql-client</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Within the <code>mysql-client</code> pod, connect to the MySQL server.</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">mysql -u root --password=password -h mysql.mysql.svc.cluster.local</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Once connected, we will create a new database.</p>
+</div>
+<div class="paragraph">
+<p>From the <code>MySQL [(none)]&gt;</code> prompt enter the following:</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-sql hljs" data-lang="sql">CREATE DATABASE erp;
+CREATE TABLE erp.Persons ( ID int, FirstName varchar(255),Lastname varchar(255));
+INSERT INTO erp.Persons (ID, FirstName, LastName) values (1234 , "John" , "Doe");
+commit;
+select * from erp.Persons;</code></pre>
+</div>
+</div>
+<div class="listingblock console-output">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">mysql&gt; CREATE DATABASE erp;
+Query OK, 1 row affected (0.01 sec)
+
+mysql&gt; CREATE TABLE erp.Persons ( ID int, FirstName varchar(255),Lastname varchar(255));
+Query OK, 0 rows affected (0.01 sec)
+
+mysql&gt; INSERT INTO erp.Persons (ID, FirstName, LastName) values (1234 , "John" , "Doe");
+Query OK, 1 row affected (0.01 sec)
+
+mysql&gt; commit;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql&gt; select * from erp.Persons;
+---------------------------
+| ID   | FirstName | Lastname |
+---------------------------
+| 1234 | John      | Doe      |
+---------------------------
+1 row in set (0.00 sec)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Type <code>exit</code> to exit the mysql server and <code>exit</code> again to exit the pod.  You should now be back at the bastion prompt</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="create-snapshop"><a class="anchor" href="#create-snapshop"></a>Creating Snapshots <a id="creating-snapshots"></a></h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Snapshots are point-in-time copies of your data, crucial for backup and disaster recovery.</p>
+</li>
+<li>
+<p>Here, you’ll learn how to use Trident with FSx for ONTAP to create snapshots for backup, and how to restore your application data from these snapshots.</p>
+</li>
+<li>
+<p>This is vital for protecting your application against data loss.</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_scale_down_mysql_for_an_consitent_snapshot"><a class="anchor" href="#_scale_down_mysql_for_an_consitent_snapshot"></a>Scale down MySQL for an consitent snapshot</h3>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc scale deployment mysql-fsx --replicas 0</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_create_the_volume_snapshot_class_and_snapshot"><a class="anchor" href="#_create_the_volume_snapshot_class_and_snapshot"></a>Create the volume snapshot class and snapshot</h3>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc apply -f volume-snapshot-class.yml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Create a snapshot of the exising MySQl data</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc apply -f volume-snapshot.yml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Use the following to find the name of the snapshot.</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get volumesnapshots</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_scale_up_mysql_for_an_consitent_snapshot"><a class="anchor" href="#_scale_up_mysql_for_an_consitent_snapshot"></a>Scale up MySQL for an consitent snapshot</h3>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc scale deployment mysql-fsx --replicas 1</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="recovery"><a class="anchor" href="#recovery"></a>Data Recovery</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>This illustrates the use of snapshots in real-world scenarios through the deletion and restoration of the database.</p>
+</li>
+<li>
+<p>This demonstrates the quick and efficient data recovery capabilities of Trident and FSx for ONTAP in managing and protecting OpenShift stateful application data.</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_delete_the_erp_database"><a class="anchor" href="#_delete_the_erp_database"></a>Delete the <code>erp</code> database.</h3>
+<div class="paragraph">
+<p>To delete the database <code>erp</code> after creating a snapshot follow these steps.</p>
+</div>
+<div class="paragraph">
+<p>Log back in to the <code>mysql-cleint</code></p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc rsh mysql-client</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Login to the MYSQL database.</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">mysql -u root --password=password -h mysql.mysql.svc.cluster.local</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Delete the <code>erp`</code> database at the <code>MySQL [(none)]&gt;</code> prompt</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-sql hljs" data-lang="sql">DROP DATABASE erp;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>After executing the DROP command, the database "erp" will be deleted, and you should see a message like:</p>
+</div>
+<div class="listingblock console-output">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">Query OK, 1 row affected</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify the database has been deleted.</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-sql hljs" data-lang="sql">SHOW DATABASES;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Exit back out to the bastion prompt.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_restore_the_snapshot"><a class="anchor" href="#_restore_the_snapshot"></a>Restore the snapshot</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Restoring a snapshot to a new pvc creates a new volume that mirrors the data state captured in the snapshot.</p>
+</li>
+<li>
+<p>This process enables data recovery or access as it existed at the snapshot&#8217;s creation, without altering the original volume.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Create a new pvc from the snapshot.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The name of the new pvc is <code>mysql-volume-clone</code>
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc apply -f mysql-pvc-clone.yml</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_update_the_mysql_application"><a class="anchor" href="#_update_the_mysql_application"></a>Update the MySQL application</h3>
+<div class="paragraph">
+<p>We need to to update the <code>mysql</code> application to point to the new pvc.</p>
+</div>
+<div class="paragraph">
+<p>Redeploy the application.  This will recreate the pod so it points to the cloned pvc.</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc apply -f mysql-deployment-clone.yml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify the new pod is running.  This may take a minute.</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get pods</code></pre>
+</div>
+</div>
+<div class="listingblock console-output">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">NAME                         READY   STATUS    RESTARTS   AGE
+mysql-client                 1/1     Running   0          10m
+mysql-fsx-59ff57c888-jcppr   1/1     Running   0          69s</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="validate"><a class="anchor" href="#validate"></a>Validate Database Restoration <a id="validation"></a></h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Validation confirms that the restored data is complete and accurate, maintaining the integrity of the database after a recovery process.</p>
+</li>
+<li>
+<p>Validation helps in identifying any issues or gaps in the restoration process, allowing for timely corrections</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>We can now check that our data has been restored.</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc rsh mysql-client</code></pre>
+</div>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">mysql -u root --password=password -h mysql.mysql.svc.cluster.local</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Show Databases</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-sql hljs" data-lang="sql">SHOW DATABASES;</code></pre>
+</div>
+</div>
+<div class="listingblock console-output">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-sql hljs" data-lang="sql">--------------------
+| Database           |
+--------------------
+| information_schema |
+| erp                |
+| mysql              |
+| performance_schema |
+| sys                |
+--------------------</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Show database data</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-sql hljs" data-lang="sql">select * from erp.Persons;</code></pre>
+</div>
+</div>
+<div class="listingblock console-output">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">---------------------------
+| ID   | FirstName | Lastname |
+---------------------------
+| 1234 | John      | Doe      |
+---------------------------</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Congrats.  You have completed the lab!</p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="module-01.html" class="query-params-link">Storage Deployment &amp; Configuration</a></span>
+</nav>
+</article>
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <a class="rhd-logo" href="https://developers.redhat.com" target="_blank"></div>
+</footer>
+<script src="../_/js/vendor/clipboard.js"></script>
+<script src="../_/js/site.js"></script>
+<script async src="../_/js/vendor/highlight.js"></script>
+  </body>
+</html>
