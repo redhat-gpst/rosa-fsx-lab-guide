@@ -1,3 +1,7 @@
+= Online preview 
+
+= <https://redhat-gpst.github.io/rosa-fsx-lab-guide/>
+
 === Lab guide to "ROSA FSx Workshop"
 
 Red Hat associates that have access to the Red Hat Demo Platform (RHDP) can launch the ROSA FSx Workshop for a lab environment.
