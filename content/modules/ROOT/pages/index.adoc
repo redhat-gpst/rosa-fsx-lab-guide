@@ -1,4 +1,4 @@
-:rosa_api_url: {rosa_api_url}
+:rosa_openshift_api_url: {rosa_openshift_api_url}
 
 = ROSA FSx Workshop
 :numbered:
@@ -28,7 +28,7 @@ To authenticate `oc` use the API URL, username, and password provided by the RHD
 
 [source,bash,role=execute,subs="attributes"]
 ----
-oc login {rosa_api_url} -u {rosa_admin_user} -p {rosa_admin_password}
+oc login {rosa_openshift_api_url} -u {rosa_openshift_admin_user} -p {rosa_openshift_admin_password}
 ----
 
 === Git clone the lab repo
