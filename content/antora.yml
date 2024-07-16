@@ -23,19 +23,13 @@ asciidoc:
     aws_web_console_url: https://aws.amazon.com/console
     aws_web_console_user_name: dummy@localhost.local
     guid: lfw97
-    rosa_admin_password: GcJf7-te22D-6FUTL-TtktJ
-    rosa_admin_user: cluster-admin
-    rosa_api_url: https://api.my-openshift-domain.local:6443
-    rosa_bastion_user_name: rosa
-    rosa_console_password: l9GWMx2wSONS
-    rosa_console_url: https://console-openshift-console.apps.my-openshift-domain.local:6443
-    rosa_console_user_name: dummy@localhost.local-lfw97
     rosa_deploy_hcp: "false"
-    rosa_ocp_cli_version: 4.14.24
-    rosa_sandbox_account_id: "123"
+    rosa_openshift_admin_password: GcJf7-te22D-6FUTL-TtktJ
+    rosa_openshift_admin_user: cluster-admin
+    rosa_openshift_api_url: https://api.my-openshift-domain.local:6443
+    rosa_openshift_console_url: https://console-openshift-console.apps.my-openshift-domain.local:6443
     rosa_subdomain_base: my-openshift-domain.local
     rosa_token_warning: "true"
-    rosa_user_password: tFyEo7dubGOj
     rosa_version: ""
     rosa_version_next: none
     showroom_host: bastion.my-openshift-domain.local
